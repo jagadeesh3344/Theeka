@@ -13,7 +13,9 @@ import 'package:thekaa/screens/cart_screen.dart';
 import 'package:thekaa/screens/review_order_screen.dart';
 import 'package:thekaa/screens/address_selection_screen.dart';
 import 'package:thekaa/screens/coins_redemption_screen.dart';
+import 'package:thekaa/screens/foodie_discovery_screen.dart';
 import 'package:thekaa/screens/review_reward_screen.dart';
+import 'package:thekaa/models/foodie_discovery.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
 import 'package:thekaa/widgets/explore_restaurant_card.dart';
 
@@ -1056,7 +1058,7 @@ void main() {
       expect(find.textContaining('4.0 / 5.0'), findsOneWidget);
     });
 
-    testWidgets('End-to-end: Coins Redemption -> Continue without coins -> Review Reward -> Back', (tester) async {
+    testWidgets('End-to-end: Coins Redemption -> Continue without coins -> Foodie Discovery -> Review Reward -> Back', (tester) async {
       await tester.pumpWidget(
         MaterialApp(
           home: CoinsRedemptionScreen(
@@ -1075,6 +1077,15 @@ void main() {
       await tester.tap(find.textContaining('Continue without coins'));
       await tester.pumpAndSettle();
 
+      // Now on FoodieDiscoveryScreen
+      expect(find.byType(FoodieDiscoveryScreen), findsOneWidget);
+      expect(find.text('A taste for discovery'), findsOneWidget);
+      expect(find.text('THEKAA Foodie'), findsOneWidget);
+
+      // Tap to advance to ReviewRewardScreen
+      await tester.tap(find.text('A taste for discovery'));
+      await tester.pumpAndSettle();
+
       // Now on ReviewRewardScreen
       expect(find.byType(ReviewRewardScreen), findsOneWidget);
       expect(find.text('A story, appreciated'), findsOneWidget);
@@ -1084,9 +1095,135 @@ void main() {
       await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
       await tester.pumpAndSettle();
 
+      // Back on FoodieDiscoveryScreen
+      expect(find.byType(FoodieDiscoveryScreen), findsOneWidget);
+      expect(find.text('A taste for discovery'), findsOneWidget);
+
+      // Tap back button on FoodieDiscoveryScreen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
       // Back on CoinsRedemptionScreen
       expect(find.byType(CoinsRedemptionScreen), findsOneWidget);
       expect(find.text('A little give-back'), findsOneWidget);
+    });
+  });
+
+  group('THEKAA Foodie Badge & Discovery Progress Suite', () {
+    testWidgets('Renders all sections matching reference screenshot accurately', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.shadabBiryani,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header
+      expect(find.text('A taste for discovery'), findsOneWidget);
+      expect(find.text('Your curiosity, celebrated. Not your like count.'), findsOneWidget);
+
+      // Card 1: THEKAA Foodie
+      expect(find.text('THEKAA Foodie'), findsOneWidget);
+      expect(find.text('10 validated food stories'), findsOneWidget);
+      expect(find.text('Earned · 28 Oct 2026'), findsOneWidget);
+
+      // Card 2: Top Reviewer
+      expect(find.text('Top Reviewer'), findsOneWidget);
+      expect(find.text('12 of 20 helpful, validated reviews'), findsOneWidget);
+      expect(find.text('8 more eligible reviews to go'), findsOneWidget);
+
+      // Card 3: Food Explorer
+      expect(find.text('Food Explorer'), findsOneWidget);
+      expect(find.text('7 of 10 different kitchens explored'), findsOneWidget);
+      expect(find.text('Discover 3 more verified kitchens'), findsOneWidget);
+
+      // Badge Info Section
+      expect(find.text('Your Foodie badge'), findsOneWidget);
+      expect(
+        find.text('A mark of ten genuine food stories, each published and checked. This badge lives on your food journal.'),
+        findsOneWidget,
+      );
+      expect(find.text('Recognition only · No automatic coin credit'), findsOneWidget);
+
+      // Discovery Philosophy Validation Card
+      expect(find.text('Made for genuine discovery'), findsOneWidget);
+      expect(
+        find.text('Eligible reviews and original photos count toward milestones. Duplicate content and engagement do not.'),
+        findsOneWidget,
+      );
+
+      // Fixed Bottom Navigation with Profile active
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+      expect(find.text('Profile'), findsOneWidget);
+    });
+
+    testWidgets('CRITICAL: Dynamic profile calculation handles unearned and custom states', (tester) async {
+      final customProfile = UserDiscoveryProfile.forUser(
+        validatedStories: 4,
+        totalStoriesTarget: 10,
+        helpfulReviews: 5,
+        reviewTarget: 20,
+        kitchensExplored: 2,
+        kitchensTarget: 10,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.shadabBiryani,
+            userProfile: customProfile,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('4 validated food stories'), findsOneWidget);
+      expect(find.text('4 of 10 completed'), findsOneWidget);
+      expect(find.text('5 of 20 helpful, validated reviews'), findsOneWidget);
+      expect(find.text('15 more eligible reviews to go'), findsOneWidget);
+      expect(find.text('2 of 10 different kitchens explored'), findsOneWidget);
+      expect(find.text('Discover 8 more verified kitchens'), findsOneWidget);
+    });
+
+    testWidgets('CRITICAL: Screen reusability with Chutneys preserves restaurant context', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.chutneys,
+            originalOrderValue: 460.0,
+            finalPayableAmount: 460.0,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Shows universal user foodie achievements
+      expect(find.text('A taste for discovery'), findsOneWidget);
+      expect(find.text('THEKAA Foodie'), findsOneWidget);
+      expect(find.text('Top Reviewer'), findsOneWidget);
+      expect(find.text('Food Explorer'), findsOneWidget);
+    });
+
+    testWidgets('Tapping screen navigates to ReviewRewardScreen preserving context', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.shadabBiryani,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap on screen
+      await tester.tap(find.text('A taste for discovery'));
+      await tester.pumpAndSettle();
+
+      // Navigates to ReviewRewardScreen
+      expect(find.byType(ReviewRewardScreen), findsOneWidget);
+      expect(find.text('A story, appreciated'), findsOneWidget);
+      expect(find.text('+25 TKC'), findsOneWidget);
     });
   });
 }
