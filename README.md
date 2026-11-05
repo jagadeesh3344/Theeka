@@ -56,6 +56,16 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
    - Reversible discount application with dynamic payable recalculation.
    - "Continue without coins" alternative checkout pathway.
 
+9. **Payment Method Screen ("One last thing")**
+   - Final checkout payment selection screen without bottom navigation bar.
+   - Large amount payable card with verified security shield and dynamic order/address summary (`Shadab Biryani · 2 items · Delivery to Home`).
+   - "Choose how to pay" section with expanded UPI method:
+     - Provider chips: `Google Pay`, `PhonePe`, `Paytm`.
+     - Editable UPI ID text field with terracotta active border.
+   - Alternative payment methods: `Debit / credit card`, `Net banking`, `Cash on delivery`.
+   - Dynamic security note (`Secure payment · No coins redeemed`).
+   - Full-width fixed action button: `Confirm & pay ₹655` with lock icon.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -68,6 +78,7 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
   - `CartItem` & `Cart`
   - `Address` & `AddressType`
   - `ThekaaLoyaltyQuote`
+  - `PaymentDetails` & `PaymentMethodType`
 
 ---
 
@@ -99,7 +110,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 31 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 35 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -112,6 +123,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Review Your Order / Checkout Test Suite` (4 tests)
 - ✅ `THEKAA Address Selection Screen Test Suite` (4 tests)
 - ✅ `THEKAA Coins Redemption Screen Test Suite` (5 tests)
+- ✅ `THEKAA Payment Method Screen Test Suite` (4 tests)
 
 ---
 

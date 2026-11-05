@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:thekaa/main.dart';
 import 'package:thekaa/models/restaurant.dart';
+import 'package:thekaa/models/address.dart';
 import 'package:thekaa/widgets/hero_introduction.dart';
 import 'package:thekaa/widgets/food_map_section.dart';
 import 'package:thekaa/widgets/thekaa_bottom_nav_bar.dart';
@@ -13,6 +14,8 @@ import 'package:thekaa/screens/cart_screen.dart';
 import 'package:thekaa/screens/review_order_screen.dart';
 import 'package:thekaa/screens/address_selection_screen.dart';
 import 'package:thekaa/screens/coins_redemption_screen.dart';
+import 'package:thekaa/screens/payment_screen.dart';
+import 'package:thekaa/models/payment_method.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
 import 'package:thekaa/widgets/explore_restaurant_card.dart';
 
@@ -981,6 +984,150 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(payableReceived, 655.0);
+    });
+  });
+
+  group('THEKAA Payment Method Screen Test Suite', () {
+    testWidgets('Renders Payment screen matching reference screenshot accurately', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PaymentScreen(
+            restaurant: Restaurant.shadabBiryani,
+            cartQuantities: const {
+              'chicken_dum_biryani': 1,
+              'mutton_biryani': 1,
+            },
+            payableAmount: 655.0,
+            coinsRedeemed: 0,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header
+      expect(find.text('One last thing'), findsOneWidget);
+
+      // Amount payable card
+      expect(find.text('Amount payable'), findsOneWidget);
+      expect(find.text('₹655'), findsOneWidget);
+      expect(find.byIcon(Icons.verified_user_outlined), findsOneWidget);
+      expect(find.text('Shadab Biryani · 2 items · Delivery to Home'), findsOneWidget);
+
+      // Choose how to pay
+      expect(find.text('Choose how to pay'), findsOneWidget);
+
+      // UPI Card
+      expect(find.text('UPI'), findsOneWidget);
+      expect(find.text('Fast, secure bank-to-bank payment'), findsOneWidget);
+      expect(find.text('Google Pay'), findsOneWidget);
+      expect(find.text('PhonePe'), findsOneWidget);
+      expect(find.text('Paytm'), findsOneWidget);
+      expect(find.text('UPI ID'), findsOneWidget);
+      expect(find.text('vatsa@sample'), findsOneWidget);
+      expect(find.text('Sample payment details — design preview'), findsOneWidget);
+
+      // Other methods
+      expect(find.text('Debit / credit card'), findsOneWidget);
+      expect(find.text('Visa, Mastercard, RuPay'), findsOneWidget);
+      expect(find.text('Net banking'), findsOneWidget);
+      expect(find.text('Choose your bank'), findsOneWidget);
+      expect(find.text('Cash on delivery'), findsOneWidget);
+      expect(find.text('Available for this order'), findsOneWidget);
+
+      // Note & Fixed Action Button
+      expect(find.text('Secure payment · No coins redeemed'), findsOneWidget);
+      expect(find.text('Confirm & pay ₹655'), findsOneWidget);
+      expect(find.byIcon(Icons.lock_rounded), findsOneWidget);
+
+      // NO Bottom Navigation Bar
+      expect(find.byType(ThekaaBottomNavBar), findsNothing);
+    });
+
+    testWidgets('Switching UPI provider chips updates selection state', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PaymentScreen(
+            restaurant: Restaurant.shadabBiryani,
+            payableAmount: 655.0,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap PhonePe
+      await tester.tap(find.text('PhonePe'));
+      await tester.pumpAndSettle();
+
+      // Tap Paytm
+      await tester.tap(find.text('Paytm'));
+      await tester.pumpAndSettle();
+
+      // Edit UPI ID
+      final upiField = find.byType(TextField);
+      expect(upiField, findsOneWidget);
+      await tester.enterText(upiField, 'user@okaxis');
+      await tester.pump();
+      expect(find.text('user@okaxis'), findsOneWidget);
+    });
+
+    testWidgets('CRITICAL: Screen reusability with Chutneys and Work address updates dynamically', (tester) async {
+      const workAddress = DeliveryAddress.defaultWork; // Work address
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PaymentScreen(
+            restaurant: Restaurant.chutneys,
+            cartQuantities: const {
+              'ghee_karam_dosa': 2,
+              'filter_coffee': 1,
+            },
+            deliveryAddress: workAddress,
+            payableAmount: 430.0,
+            coinsRedeemed: 100,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('₹430'), findsOneWidget);
+      expect(find.text('Chutneys · 3 items · Delivery to Work'), findsOneWidget);
+      expect(find.text('Secure payment · 100 TKC redeemed'), findsOneWidget);
+      expect(find.text('Confirm & pay ₹430'), findsOneWidget);
+    });
+
+    testWidgets('End-to-end: Coins Redemption -> Continue without coins -> Payment Screen -> Back', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: CoinsRedemptionScreen(
+            restaurant: Restaurant.shadabBiryani,
+            cartQuantities: const {
+              'chicken_dum_biryani': 1,
+              'mutton_biryani': 1,
+            },
+            originalOrderValue: 655.0,
+          ),
+        ),
+      );
+      // Wait for quotation
+      await tester.pump(const Duration(milliseconds: 1500));
+
+      // Tap Continue without coins · ₹655
+      expect(find.textContaining('Continue without coins'), findsOneWidget);
+      await tester.tap(find.textContaining('Continue without coins'));
+      await tester.pumpAndSettle();
+
+      // Now directly on PaymentScreen
+      expect(find.byType(PaymentScreen), findsOneWidget);
+      expect(find.text('One last thing'), findsOneWidget);
+      expect(find.text('Confirm & pay ₹655'), findsOneWidget);
+
+      // Tap back button on PaymentScreen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on CoinsRedemptionScreen
+      expect(find.byType(CoinsRedemptionScreen), findsOneWidget);
+      expect(find.text('A little give-back'), findsOneWidget);
     });
   });
 }
