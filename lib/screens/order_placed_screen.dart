@@ -1,0 +1,244 @@
+import 'package:flutter/material.dart';
+import '../models/order_confirmation.dart';
+import '../theme/thekaa_colors.dart';
+import '../widgets/delivery_estimate_card.dart';
+import '../widgets/order_placed_actions.dart';
+import '../widgets/order_success_header.dart';
+import '../widgets/order_success_illustration.dart';
+import '../widgets/order_summary_card.dart';
+
+class OrderPlacedScreen extends StatelessWidget {
+  final OrderConfirmation order;
+  final VoidCallback? onBack;
+  final VoidCallback? onTrackOrder;
+  final VoidCallback? onViewOrderDetails;
+
+  const OrderPlacedScreen({
+    super.key,
+    required this.order,
+    this.onBack,
+    this.onTrackOrder,
+    this.onViewOrderDetails,
+  });
+
+  void _handleTrackOrder(BuildContext context) {
+    if (onTrackOrder != null) {
+      onTrackOrder!();
+      return;
+    }
+
+    // Default tracking modal/info
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: ThekaaColors.cardBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Live Tracking',
+                      style: TextStyle(
+                        fontFamily: 'Playfair Display',
+                        fontSize: 20,
+                        fontWeight: FontWeight.w700,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: ThekaaColors.primaryText),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  'Kitchen is preparing your order at ${order.restaurantName}.',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    color: ThekaaColors.primaryText,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '${order.deliveryEtaDuration} · ${order.deliveryEtaWindow}',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 13,
+                    color: ThekaaColors.terracotta,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _handleViewOrderDetails(BuildContext context) {
+    if (onViewOrderDetails != null) {
+      onViewOrderDetails!();
+      return;
+    }
+
+    // Default order details bottom sheet
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: ThekaaColors.cardBackground,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Order Details · ${order.orderId}',
+                      style: const TextStyle(
+                        fontFamily: 'Playfair Display',
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close, color: ThekaaColors.primaryText),
+                      onPressed: () => Navigator.pop(context),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  '${order.restaurantName} (${order.restaurantArea})',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: ThekaaColors.primaryText,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Delivery to: ${order.deliveryAddress?.formattedAddress ?? 'Home'}',
+                  style: const TextStyle(
+                    fontFamily: 'Inter',
+                    fontSize: 12.5,
+                    color: Color(0xFF8F7D6D),
+                  ),
+                ),
+                const Divider(color: Color(0xFFEADBCE), height: 24),
+                ...order.items.map(
+                  (item) => Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 2.0),
+                    child: Text(
+                      item.formattedRow,
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 13,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                  ),
+                ),
+                const Divider(color: Color(0xFFEADBCE), height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Total Paid',
+                      style: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                    Text(
+                      '₹${order.totalPayable.toInt()}',
+                      style: const TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: ThekaaColors.mainBackground,
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Header: "You're all set"
+            OrderSuccessHeader(
+              onBack: onBack ?? () => Navigator.of(context).popUntil((route) => route.isFirst),
+            ),
+
+            // Scrollable Content
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    // Illustration & Main Titles
+                    OrderSuccessIllustration(order: order),
+
+                    const SizedBox(height: 14),
+
+                    // Delivery ETA Card
+                    DeliveryEstimateCard(order: order),
+
+                    // Restaurant Order Summary Card
+                    OrderSummaryCard(order: order),
+
+                    const SizedBox(height: 10),
+                  ],
+                ),
+              ),
+            ),
+
+            // Fixed Bottom Actions (Track order & View order details)
+            OrderPlacedActions(
+              order: order,
+              onTrackOrder: () => _handleTrackOrder(context),
+              onViewOrderDetails: () => _handleViewOrderDetails(context),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

@@ -66,6 +66,16 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
    - Dynamic security note (`Secure payment · No coins redeemed`).
    - Full-width fixed action button: `Confirm & pay ₹655` with lock icon.
 
+10. **Order Placed Confirmation Screen ("Order placed, bhaiyya.")**
+    - Post-payment confirmation receipt without bottom navigation bar.
+    - Large circular Dabba container line-art illustration with bottom-right green checkmark badge.
+    - Warm cursive message: *"Acha khaana, on its way."*
+    - Main heading: *"Order placed, bhaiyya."* with dynamic order tag (`#THK84291 · 01 Nov 2026 · 1:45 PM`).
+    - Delivery time estimate card with clock icon: `24–28 min` (`Estimated delivery · 2:09–2:13 PM`).
+    - Restaurant order summary card detailing restaurant name, locality, itemized dish rows with quantities and prices, and final confirmed payable amount.
+    - Dynamic payment summary note (`Paid ₹655 via UPI · No coins redeemed`).
+    - Dual action buttons: `Track order` (with location route icon) and `View order details`.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -79,6 +89,7 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
   - `Address` & `AddressType`
   - `ThekaaLoyaltyQuote`
   - `PaymentDetails` & `PaymentMethodType`
+  - `OrderConfirmation` & `OrderItemDetail`
 
 ---
 
@@ -110,7 +121,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 35 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 39 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -123,7 +134,8 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Review Your Order / Checkout Test Suite` (4 tests)
 - ✅ `THEKAA Address Selection Screen Test Suite` (4 tests)
 - ✅ `THEKAA Coins Redemption Screen Test Suite` (5 tests)
-- ✅ `THEKAA Payment Method Screen Test Suite` (4 tests)
+- ✅ `THEKAA Payment Method Screen Test Suite` (5 tests)
+- ✅ `THEKAA Order Placed Confirmation Screen Suite` (3 tests)
 
 ---
 

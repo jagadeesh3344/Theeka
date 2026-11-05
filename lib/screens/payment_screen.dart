@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/address.dart';
+import '../models/order_confirmation.dart';
 import '../models/payment_method.dart';
 import '../models/restaurant.dart';
 import '../theme/thekaa_colors.dart';
@@ -8,6 +9,7 @@ import '../widgets/other_payment_methods_card.dart';
 import '../widgets/payable_amount_card.dart';
 import '../widgets/payment_header.dart';
 import '../widgets/upi_payment_card.dart';
+import 'order_placed_screen.dart';
 
 class PaymentScreen extends StatefulWidget {
   final Restaurant restaurant;
@@ -107,10 +109,26 @@ class _PaymentScreenState extends State<PaymentScreen> {
       ),
     );
 
+    final orderConfirmation = OrderConfirmation.fromCheckout(
+      restaurant: widget.restaurant,
+      cartQuantities: widget.cartQuantities,
+      deliveryAddress: widget.deliveryAddress,
+      payableAmount: widget.payableAmount,
+      coinsRedeemed: widget.coinsRedeemed,
+      paymentMethod: _selectedMethod,
+    );
+
     if (widget.onPaymentSuccess != null) {
       widget.onPaymentSuccess!();
     } else {
-      Navigator.of(context).popUntil((route) => route.isFirst);
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => OrderPlacedScreen(
+            order: orderConfirmation,
+            onBack: () => Navigator.of(context).popUntil((route) => route.isFirst),
+          ),
+        ),
+      );
     }
   }
 

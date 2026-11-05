@@ -15,7 +15,9 @@ import 'package:thekaa/screens/review_order_screen.dart';
 import 'package:thekaa/screens/address_selection_screen.dart';
 import 'package:thekaa/screens/coins_redemption_screen.dart';
 import 'package:thekaa/screens/payment_screen.dart';
+import 'package:thekaa/screens/order_placed_screen.dart';
 import 'package:thekaa/models/payment_method.dart';
+import 'package:thekaa/models/order_confirmation.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
 import 'package:thekaa/widgets/explore_restaurant_card.dart';
 
@@ -1128,6 +1130,147 @@ void main() {
       // Back on CoinsRedemptionScreen
       expect(find.byType(CoinsRedemptionScreen), findsOneWidget);
       expect(find.text('A little give-back'), findsOneWidget);
+    });
+
+    testWidgets('End-to-end: Payment Screen -> Confirm & pay -> Order Placed Screen', (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: PaymentScreen(
+            restaurant: Restaurant.shadabBiryani,
+            cartQuantities: const {
+              'chicken_dum_biryani': 1,
+              'mutton_biryani': 1,
+            },
+            payableAmount: 655.0,
+            coinsRedeemed: 0,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Confirm & pay ₹655
+      expect(find.text('Confirm & pay ₹655'), findsOneWidget);
+      await tester.tap(find.text('Confirm & pay ₹655'));
+      await tester.pump(const Duration(milliseconds: 700));
+      await tester.pumpAndSettle();
+
+      // Now directly on OrderPlacedScreen!
+      expect(find.byType(OrderPlacedScreen), findsOneWidget);
+      expect(find.text("You're all set"), findsOneWidget);
+      expect(find.text('Order placed, bhaiyya.'), findsOneWidget);
+    });
+  });
+
+  group('THEKAA Order Placed Confirmation Screen Suite', () {
+    testWidgets('Renders Order Placed screen matching reference screenshot accurately', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        cartQuantities: const {
+          'chicken_dum_biryani': 1,
+          'mutton_biryani': 1,
+        },
+        payableAmount: 655.0,
+        coinsRedeemed: 0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderPlacedScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header
+      expect(find.text("You're all set"), findsOneWidget);
+
+      // Cursive script & Title
+      expect(find.text('Acha khaana, on its way.'), findsOneWidget);
+      expect(find.text('Order placed, bhaiyya.'), findsOneWidget);
+      expect(find.text('#THK84291 · 01 Nov 2026 · 1:45 PM'), findsOneWidget);
+
+      // Delivery ETA Card
+      expect(find.text('24–28 min'), findsOneWidget);
+      expect(find.text('Estimated delivery · 2:09–2:13 PM'), findsOneWidget);
+      expect(find.byIcon(Icons.access_time_rounded), findsOneWidget);
+
+      // Restaurant & Items Card
+      expect(find.text('Shadab Biryani'), findsOneWidget);
+      expect(find.text('Gachibowli · #THK84291'), findsOneWidget);
+      expect(find.text('1 × Chicken Dum Biryani · ₹280'), findsOneWidget);
+      expect(find.text('1 × Mutton Biryani · ₹340'), findsOneWidget);
+      expect(find.text('2 items · No coins redeemed'), findsOneWidget);
+      expect(find.text('₹655'), findsOneWidget);
+
+      // Payment Summary Note
+      expect(find.text('Paid ₹655 via UPI · No coins redeemed'), findsOneWidget);
+
+      // Buttons
+      expect(find.text('Track order'), findsOneWidget);
+      expect(find.byIcon(Icons.alt_route_rounded), findsOneWidget);
+      expect(find.text('View order details'), findsOneWidget);
+
+      // NO Bottom Navigation Bar
+      expect(find.byType(ThekaaBottomNavBar), findsNothing);
+    });
+
+    testWidgets('CRITICAL: Screen reusability with Chutneys and Coins applied updates dynamically', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.chutneys,
+        cartQuantities: const {
+          'ghee_karam_dosa': 2,
+          'filter_coffee': 1,
+        },
+        payableAmount: 430.0,
+        coinsRedeemed: 100,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderPlacedScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Order placed, bhaiyya.'), findsOneWidget);
+      expect(find.text('#THK62180 · 01 Nov 2026 · 1:45 PM'), findsOneWidget);
+      expect(find.text('20–25 min'), findsOneWidget);
+      expect(find.text('Chutneys'), findsOneWidget);
+      expect(find.text('2 × Ghee Karam Dosa · ₹180'), findsOneWidget);
+      expect(find.text('1 × Filter Coffee · ₹70'), findsOneWidget);
+      expect(find.text('3 items · 100 TKC redeemed'), findsOneWidget);
+      expect(find.text('₹430'), findsOneWidget);
+      expect(find.text('Paid ₹430 via UPI · 100 TKC redeemed'), findsOneWidget);
+    });
+
+    testWidgets('Interactive Track order and View order details invoke handlers', (tester) async {
+      bool tracked = false;
+      bool detailsViewed = false;
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderPlacedScreen(
+            order: order,
+            onTrackOrder: () => tracked = true,
+            onViewOrderDetails: () => detailsViewed = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Track order
+      await tester.tap(find.text('Track order'));
+      await tester.pumpAndSettle();
+      expect(tracked, isTrue);
+
+      // Tap View order details
+      await tester.tap(find.text('View order details'));
+      await tester.pumpAndSettle();
+      expect(detailsViewed, isTrue);
     });
   });
 }
