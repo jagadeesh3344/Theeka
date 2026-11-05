@@ -9,7 +9,6 @@ import '../widgets/thekaa_coins_balance_card.dart';
 import '../widgets/coins_redeem_selector_card.dart';
 import '../widgets/coins_notice_card.dart';
 import '../widgets/coins_order_summary_card.dart';
-import 'foodie_discovery_screen.dart';
 
 class CoinsRedemptionScreen extends StatefulWidget {
   final Restaurant restaurant;
@@ -230,20 +229,19 @@ class _CoinsRedemptionScreenState extends State<CoinsRedemptionScreen> {
                     if (widget.onContinueToPay != null) {
                       widget.onContinueToPay!(_finalPayable);
                     } else {
-                      Navigator.of(context).push(
-                        MaterialPageRoute(
-                          builder: (context) => FoodieDiscoveryScreen(
-                            restaurant: widget.restaurant,
-                            cartQuantities: widget.cartQuantities,
-                            deliveryAddress: widget.deliveryAddress,
-                            originalOrderValue: widget.originalOrderValue,
-                            finalPayableAmount: _finalPayable,
-                            coinsRedeemed: _appliedCoins,
-                            coinBalance: _quote.coinBalance,
-                            onBack: () => Navigator.of(context).pop(),
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          backgroundColor: ThekaaColors.primaryText,
+                          content: Text(
+                            'Order confirmed with ${widget.restaurant.name} · ₹${_finalPayable.toInt()}',
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              color: ThekaaColors.cardBackground,
+                            ),
                           ),
                         ),
                       );
+                      Navigator.of(context).popUntil((route) => route.isFirst);
                     }
                   },
                   style: ElevatedButton.styleFrom(

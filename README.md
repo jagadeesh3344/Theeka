@@ -56,23 +56,6 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
    - Reversible discount application with dynamic payable recalculation.
    - "Continue without coins" alternative checkout pathway.
 
-9. **Foodie Badge & Discovery Progress Screen ("A taste for discovery")**
-   - Intermediate achievement checkpoint celebration between Coins and Reward Confirmation.
-   - Subtitle: *"Your curiosity, celebrated. Not your like count."*
-   - Card 1: `THEKAA Foodie` (`10 validated food stories` · `Earned · 28 Oct 2026`) with full progress indicator.
-   - Card 2: `Top Reviewer` (`12 of 20 helpful, validated reviews` · `8 more eligible reviews to go`) with 60% progress indicator.
-   - Card 3: `Food Explorer` (`7 of 10 different kitchens explored` · `Discover 3 more verified kitchens`) with 70% progress indicator.
-   - `Your Foodie badge` details card explaining badge journal recognition without automatic coin credit.
-   - `Made for genuine discovery` verification notice explaining review eligibility philosophy.
-   - Fixed 5-destination bottom navigation bar with **Profile active** (index 4).
-
-10. **Review Reward / Confirmation Screen ("A story, appreciated")**
-   - Post-checkout review reward receipt with circular checkmark badge (`+25 TKC`).
-   - Transaction audit table (`Transaction ID`, `Date & time`, `Type`, `Source`, `Related order`, `Balance before`, `Balance after`).
-   - Associated restaurant and food dish preview with user rating snippet.
-   - Anti-duplication guarantee badge (`Credited once, after checks`).
-   - Modal bottom sheet viewer for linked review details.
-
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -84,8 +67,7 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
   - `Restaurant` & `Dish`
   - `CartItem` & `Cart`
   - `Address` & `AddressType`
-  - `FoodieAchievement` & `UserDiscoveryProfile`
-  - `RewardTransaction`
+  - `ThekaaLoyaltyQuote`
 
 ---
 
@@ -117,7 +99,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 38 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 31 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -129,9 +111,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Cart Screen Test Suite` (5 tests)
 - ✅ `THEKAA Review Your Order / Checkout Test Suite` (4 tests)
 - ✅ `THEKAA Address Selection Screen Test Suite` (4 tests)
-- ✅ `THEKAA Coins Redemption Screen Test Suite` (4 tests)
-- ✅ `THEKAA Review Reward / Transaction Confirmation Test Suite` (4 tests)
-- ✅ `THEKAA Foodie Badge & Discovery Progress Suite` (4 tests)
+- ✅ `THEKAA Coins Redemption Screen Test Suite` (5 tests)
 
 ---
 
