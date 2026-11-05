@@ -1225,5 +1225,70 @@ void main() {
       expect(find.text('A story, appreciated'), findsOneWidget);
       expect(find.text('+25 TKC'), findsOneWidget);
     });
+
+    testWidgets('CRITICAL: Loading and error states display correctly without fabricating achievements', (tester) async {
+      // 1. Loading state
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.shadabBiryani,
+            isLoading: true,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.byType(CircularProgressIndicator), findsOneWidget);
+      expect(find.text('Loading discovery progress...'), findsOneWidget);
+      expect(find.text('THEKAA Foodie'), findsNothing);
+
+      // 2. Error state
+      bool retried = false;
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.shadabBiryani,
+            errorMessage: 'Unable to reach discovery service',
+            onRetry: () => retried = true,
+          ),
+        ),
+      );
+      await tester.pump();
+
+      expect(find.text('Unable to reach discovery service'), findsOneWidget);
+      expect(find.text('Retry'), findsOneWidget);
+
+      await tester.tap(find.text('Retry'));
+      await tester.pump();
+      expect(retried, isTrue);
+    });
+
+    testWidgets('CRITICAL: Fully earned milestones reflect 100% progress and earned status', (tester) async {
+      final fullyEarnedProfile = UserDiscoveryProfile.forUser(
+        validatedStories: 10,
+        totalStoriesTarget: 10,
+        earnedDate: '28 Oct 2026',
+        helpfulReviews: 20,
+        reviewTarget: 20,
+        kitchensExplored: 10,
+        kitchensTarget: 10,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodieDiscoveryScreen(
+            restaurant: Restaurant.shadabBiryani,
+            userProfile: fullyEarnedProfile,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('10 validated food stories'), findsOneWidget);
+      expect(find.text('Earned · 28 Oct 2026'), findsOneWidget);
+      expect(find.text('20 of 20 helpful, validated reviews'), findsOneWidget);
+      expect(find.text('10 of 10 different kitchens explored'), findsOneWidget);
+      expect(find.text('Earned'), findsNWidgets(2));
+    });
   });
 }

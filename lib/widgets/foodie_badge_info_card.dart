@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import '../models/foodie_discovery.dart';
 import '../theme/thekaa_colors.dart';
 
+/// Aliases for FoodieBadgeSection / FoodieBadgeDescriptionCard
+typedef FoodieBadgeSection = FoodieBadgeInfoCard;
+typedef FoodieBadgeDescriptionCard = FoodieBadgeInfoCard;
+
 class FoodieBadgeInfoCard extends StatelessWidget {
   final UserDiscoveryProfile profile;
 

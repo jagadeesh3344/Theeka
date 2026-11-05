@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../models/foodie_discovery.dart';
 import '../theme/thekaa_colors.dart';
 
+/// Alias for GenuineDiscoveryCard
+typedef GenuineDiscoveryCard = DiscoveryValidationCard;
+
 class DiscoveryValidationCard extends StatelessWidget {
   final UserDiscoveryProfile profile;
 

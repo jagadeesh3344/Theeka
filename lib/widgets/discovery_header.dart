@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../theme/thekaa_colors.dart';
 
+/// Alias for FoodieProgressHeader as referenced in requirements
+typedef FoodieProgressHeader = DiscoveryHeader;
+
 class DiscoveryHeader extends StatelessWidget {
   final VoidCallback? onBack;
 
