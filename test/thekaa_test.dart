@@ -17,6 +17,7 @@ import 'package:thekaa/screens/coins_redemption_screen.dart';
 import 'package:thekaa/screens/payment_screen.dart';
 import 'package:thekaa/screens/order_placed_screen.dart';
 import 'package:thekaa/screens/order_details_screen.dart';
+import 'package:thekaa/screens/order_tracking_screen.dart';
 import 'package:thekaa/models/payment_method.dart';
 import 'package:thekaa/models/order_confirmation.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
@@ -1435,6 +1436,217 @@ void main() {
       // Should be back at OrderPlacedScreen
       expect(find.text('Order placed, bhaiyya.'), findsOneWidget);
       expect(find.byType(OrderDetailsScreen), findsNothing);
+    });
+  });
+
+  group('THEKAA Order Tracking Screen Suite', () {
+    testWidgets('Renders all authoritative elements matching reference screenshot', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderTrackingScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Top Header
+      expect(find.text('A little dum, a little time'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+
+      // Order ID & Estimated Time
+      expect(find.text('#THK84291'), findsOneWidget);
+      expect(find.text('Estimated 2:09–2:13 PM'), findsOneWidget);
+
+      // 5-Stage Timeline
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.text('Completed'), findsOneWidget);
+
+      expect(find.text('Restaurant preparing food'), findsOneWidget);
+      expect(find.text('In progress'), findsOneWidget);
+
+      expect(find.text('Rider assigned'), findsOneWidget);
+      expect(find.text('Out for delivery'), findsOneWidget);
+      expect(find.text('Delivered'), findsOneWidget);
+      expect(find.text('Pending'), findsNWidgets(3));
+
+      // Restaurant Status Card
+      expect(find.text('Shadab Biryani is preparing your meal.'), findsOneWidget);
+      expect(find.text('Your biryani is getting its finishing touch.'), findsOneWidget);
+
+      // Order Summary Card
+      expect(find.text('2 items · ₹655 paid'), findsOneWidget);
+      expect(find.text('Shadab Biryani, Gachibowli'), findsOneWidget);
+      expect(find.byIcon(Icons.receipt_long_outlined), findsOneWidget);
+
+      // Action Button: View order details
+      expect(find.text('View order details'), findsOneWidget);
+
+      // Bottom Navigation Bar with Orders tab active (index 3)
+      final bottomNavBarFinder = find.byType(ThekaaBottomNavBar);
+      expect(bottomNavBarFinder, findsOneWidget);
+      final ThekaaBottomNavBar navBar = tester.widget(bottomNavBarFinder);
+      expect(navBar.currentIndex, equals(3));
+    });
+
+    testWidgets('Dynamic screen reusability with Chutneys and Coins applied updates dynamically', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.chutneys,
+        cartQuantities: const {
+          'ghee_karam_dosa': 2,
+          'filter_coffee': 1,
+        },
+        payableAmount: 430.0,
+        coinsRedeemed: 100,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderTrackingScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('A little dum, a little time'), findsOneWidget);
+      expect(find.text('#THK62180'), findsOneWidget);
+      expect(find.text('Estimated 2:05–2:10 PM'), findsOneWidget);
+      expect(find.text('Chutneys is preparing your meal.'), findsOneWidget);
+      expect(find.text('Your dosa is getting its finishing touch.'), findsOneWidget);
+      expect(find.text('3 items · ₹430 paid'), findsOneWidget);
+      expect(find.text('Chutneys, Gachibowli'), findsOneWidget);
+    });
+
+    testWidgets('Lifecycle progression of OrderTrackingStatus updates timeline states', (tester) async {
+      final baseOrder = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      // Test Rider Assigned stage
+      final riderOrder = baseOrder.copyWith(
+        trackingStatus: OrderTrackingStatus.riderAssigned,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderTrackingScreen(order: riderOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Stages 1 & 2 completed, stage 3 in progress, stages 4 & 5 pending
+      expect(find.text('Completed'), findsNWidgets(2));
+      expect(find.text('In progress'), findsOneWidget);
+      expect(find.text('Pending'), findsNWidgets(2));
+
+      // Test Out for Delivery stage
+      final deliveryOrder = baseOrder.copyWith(
+        trackingStatus: OrderTrackingStatus.outForDelivery,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderTrackingScreen(order: deliveryOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Completed'), findsNWidgets(3));
+      expect(find.text('In progress'), findsOneWidget);
+      expect(find.text('Pending'), findsNWidgets(1));
+
+      // Test Delivered stage
+      final deliveredOrder = baseOrder.copyWith(
+        trackingStatus: OrderTrackingStatus.delivered,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderTrackingScreen(order: deliveredOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Completed'), findsNWidgets(5));
+      expect(find.text('In progress'), findsNothing);
+      expect(find.text('Pending'), findsNothing);
+    });
+
+    testWidgets('Interactive callbacks work (onBack, onViewOrderDetails, onNavTap)', (tester) async {
+      bool backed = false;
+      bool detailsViewed = false;
+      int? tappedIndex;
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderTrackingScreen(
+            order: order,
+            onBack: () => backed = true,
+            onViewOrderDetails: () => detailsViewed = true,
+            onNavTap: (i) => tappedIndex = i,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Back
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+      expect(backed, isTrue);
+
+      // Tap View order details
+      await tester.tap(find.text('View order details'));
+      await tester.pumpAndSettle();
+      expect(detailsViewed, isTrue);
+
+      // Tap Home tab (index 0)
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(tappedIndex, equals(0));
+    });
+
+    testWidgets('End-to-End: Order Details -> Track your order navigates to Order Tracking and back', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderDetailsScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.byType(OrderTrackingScreen), findsNothing);
+
+      // Tap Track your order
+      await tester.tap(find.text('Track your order'));
+      await tester.pumpAndSettle();
+
+      // Should be on OrderTrackingScreen
+      expect(find.byType(OrderTrackingScreen), findsOneWidget);
+      expect(find.text('A little dum, a little time'), findsOneWidget);
+      expect(find.text('Restaurant preparing food'), findsOneWidget);
+      expect(find.text('View order details'), findsOneWidget);
+
+      // Tap View order details to return back to OrderDetailsScreen
+      await tester.tap(find.text('View order details'));
+      await tester.pumpAndSettle();
+
+      // Should be back on OrderDetailsScreen
+      expect(find.byType(OrderDetailsScreen), findsOneWidget);
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.byType(OrderTrackingScreen), findsNothing);
     });
   });
 }

@@ -88,6 +88,22 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
     - Full-width terracotta action button: `Track your order` with route icon.
     - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
 
+12. **Live Order Tracking Screen ("A little dum, a little time")**
+    - Real-time order tracking opened via "Track your order" from the Order Details screen.
+    - Top navigation header: `< A little dum, a little time` in Playfair Display serif (`#49362B`).
+    - Subheader row displaying Order ID (`#THK84291`) on left and estimated window (`Estimated 2:09–2:13 PM`) on right in terracotta.
+    - 5-stage lifecycle progress timeline card:
+      1. `Order confirmed` (Completed — dark green checkmark)
+      2. `Restaurant preparing food` (In progress — terracotta active dot)
+      3. `Rider assigned` (Pending — light beige indicator)
+      4. `Out for delivery` (Pending — light beige indicator)
+      5. `Delivered` (Pending — light beige indicator)
+    - Vertical timeline connecting lines dynamically reflecting completion state.
+    - Restaurant status card: Food thumbnail photo, dynamic preparation copy (`[Restaurant] is preparing your meal.`), and dish finishing touch copy (`Your biryani is getting its finishing touch.`).
+    - Compact order summary card: Document receipt icon, item count and amount paid (`2 items · ₹655 paid`), and restaurant locality.
+    - Fixed bottom action button: `View order details` with warm cream background and terracotta border.
+    - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -133,7 +149,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 43 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 48 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -149,6 +165,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Payment Method Screen Test Suite` (5 tests)
 - ✅ `THEKAA Order Placed Confirmation Screen Suite` (3 tests)
 - ✅ `THEKAA Order Details / Order Confirmed Screen Suite` (4 tests)
+- ✅ `THEKAA Order Tracking Screen Suite` (5 tests)
 
 ---
 

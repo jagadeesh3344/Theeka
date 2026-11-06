@@ -2,6 +2,20 @@ import 'address.dart';
 import 'payment_method.dart';
 import 'restaurant.dart';
 
+enum OrderTrackingStatus {
+  orderConfirmed,
+  preparingFood,
+  riderAssigned,
+  outForDelivery,
+  delivered,
+}
+
+enum StageProgressState {
+  completed,
+  inProgress,
+  pending,
+}
+
 class OrderItemDetail {
   final String name;
   final int quantity;
@@ -30,6 +44,9 @@ class OrderConfirmation {
   final int coinsRedeemed;
   final String paymentMethodName;
   final DeliveryAddress? deliveryAddress;
+  final String restaurantImagePath;
+  final OrderTrackingStatus trackingStatus;
+  final String? customStatusMessage;
 
   const OrderConfirmation({
     required this.orderId,
@@ -45,6 +62,9 @@ class OrderConfirmation {
     this.coinsRedeemed = 0,
     required this.paymentMethodName,
     this.deliveryAddress,
+    this.restaurantImagePath = 'assets/images/biryani.png',
+    this.trackingStatus = OrderTrackingStatus.preparingFood,
+    this.customStatusMessage,
   });
 
   int get totalItemCount =>
@@ -56,6 +76,75 @@ class OrderConfirmation {
   String get paymentSummaryText =>
       'Paid ₹${totalPayable.toInt()} via $paymentMethodName · $coinSummaryText';
 
+  String get statusMessage {
+    if (customStatusMessage != null) return customStatusMessage!;
+    final lowerNames = items.map((i) => i.name.toLowerCase()).toList();
+    if (lowerNames.any((n) => n.contains('biryani')) || restaurantId == 'shadab') {
+      return 'Your biryani is getting its finishing touch.';
+    } else if (lowerNames.any((n) => n.contains('dosa')) || restaurantId == 'chutneys') {
+      return 'Your dosa is getting its finishing touch.';
+    } else {
+      return 'Your meal is getting its finishing touch.';
+    }
+  }
+
+  String get estimatedTimeFormatted =>
+      deliveryEtaWindow.replaceAll('Estimated delivery · ', 'Estimated ');
+
+  StageProgressState getStageState(OrderTrackingStatus stage) {
+    if (trackingStatus == OrderTrackingStatus.delivered) {
+      return StageProgressState.completed;
+    }
+    final currentIndex = trackingStatus.index;
+    final stageIndex = stage.index;
+
+    if (stageIndex < currentIndex) {
+      return StageProgressState.completed;
+    } else if (stageIndex == currentIndex) {
+      return StageProgressState.inProgress;
+    } else {
+      return StageProgressState.pending;
+    }
+  }
+
+  OrderConfirmation copyWith({
+    String? orderId,
+    String? date,
+    String? time,
+    String? deliveryEtaDuration,
+    String? deliveryEtaWindow,
+    String? restaurantId,
+    String? restaurantName,
+    String? restaurantArea,
+    List<OrderItemDetail>? items,
+    double? totalPayable,
+    int? coinsRedeemed,
+    String? paymentMethodName,
+    DeliveryAddress? deliveryAddress,
+    String? restaurantImagePath,
+    OrderTrackingStatus? trackingStatus,
+    String? customStatusMessage,
+  }) {
+    return OrderConfirmation(
+      orderId: orderId ?? this.orderId,
+      date: date ?? this.date,
+      time: time ?? this.time,
+      deliveryEtaDuration: deliveryEtaDuration ?? this.deliveryEtaDuration,
+      deliveryEtaWindow: deliveryEtaWindow ?? this.deliveryEtaWindow,
+      restaurantId: restaurantId ?? this.restaurantId,
+      restaurantName: restaurantName ?? this.restaurantName,
+      restaurantArea: restaurantArea ?? this.restaurantArea,
+      items: items ?? this.items,
+      totalPayable: totalPayable ?? this.totalPayable,
+      coinsRedeemed: coinsRedeemed ?? this.coinsRedeemed,
+      paymentMethodName: paymentMethodName ?? this.paymentMethodName,
+      deliveryAddress: deliveryAddress ?? this.deliveryAddress,
+      restaurantImagePath: restaurantImagePath ?? this.restaurantImagePath,
+      trackingStatus: trackingStatus ?? this.trackingStatus,
+      customStatusMessage: customStatusMessage ?? this.customStatusMessage,
+    );
+  }
+
   factory OrderConfirmation.fromCheckout({
     required Restaurant restaurant,
     Map<String, int> cartQuantities = const {},
@@ -64,6 +153,8 @@ class OrderConfirmation {
     int coinsRedeemed = 0,
     PaymentMethodType paymentMethod = PaymentMethodType.upi,
     String? customOrderId,
+    OrderTrackingStatus trackingStatus = OrderTrackingStatus.preparingFood,
+    String? customStatusMessage,
   }) {
     final orderId = customOrderId ??
         (restaurant.id == 'chutneys' ? '#THK62180' : '#THK84291');
@@ -166,7 +257,9 @@ class OrderConfirmation {
       coinsRedeemed: coinsRedeemed,
       paymentMethodName: methodName,
       deliveryAddress: deliveryAddress ?? DeliveryAddress.defaultHome,
+      restaurantImagePath: restaurant.imagePath.isNotEmpty ? restaurant.imagePath : 'assets/images/biryani.png',
+      trackingStatus: trackingStatus,
+      customStatusMessage: customStatusMessage,
     );
   }
 }
-

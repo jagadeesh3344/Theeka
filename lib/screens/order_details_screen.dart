@@ -7,6 +7,7 @@ import '../widgets/order_details_illustration.dart';
 import '../widgets/order_status_card.dart';
 import '../widgets/order_summary_card.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
+import 'order_tracking_screen.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
   final OrderConfirmation order;
@@ -28,63 +29,14 @@ class OrderDetailsScreen extends StatelessWidget {
       return;
     }
 
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: ThekaaColors.cardBackground,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => OrderTrackingScreen(
+          order: order,
+          onBack: () => Navigator.of(context).pop(),
+          onViewOrderDetails: () => Navigator.of(context).pop(),
+        ),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Live Tracking',
-                      style: TextStyle(
-                        fontFamily: 'Playfair Display',
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: ThekaaColors.primaryText,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: ThekaaColors.primaryText),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  'Kitchen is preparing your order at ${order.restaurantName}.',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    color: ThekaaColors.primaryText,
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  '${order.deliveryEtaDuration} · ${order.deliveryEtaWindow}',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 13,
-                    color: ThekaaColors.terracotta,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
@@ -185,3 +137,4 @@ class OrderDetailsScreen extends StatelessWidget {
     );
   }
 }
+
