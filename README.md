@@ -76,6 +76,18 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
     - Dynamic payment summary note (`Paid ₹655 via UPI · No coins redeemed`).
     - Dual action buttons: `Track order` (with location route icon) and `View order details`.
 
+11. **Order Confirmed / Order Details Screen ("Order confirmed")**
+    - Authoritative order details screen opened via "View order details" from the Order Placed screen.
+    - Top navigation header: `< Order confirmed` in Playfair Display serif.
+    - Centered circular Dabba container badge with bottom-right green verified checkmark.
+    - Editorial cursive script note: *"The kitchen has your order."* in Caveat.
+    - Header sub-row displaying Order ID (`#THK84291`) and timestamp (`Today, 1:45 PM`).
+    - Kitchen status card (pale green): `✓ Confirmed by [Restaurant]` with acceptance copy (*"Your order is accepted. We'll let you know when preparation begins."*).
+    - Delivery ETA card with clock icon: `Arriving in 24–28 min` (`Estimated 2:09–2:13 PM`).
+    - Itemized order summary card with dishes, item count, coin redemption state, and total price.
+    - Full-width terracotta action button: `Track your order` with route icon.
+    - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -121,7 +133,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 39 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 43 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -136,6 +148,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Coins Redemption Screen Test Suite` (5 tests)
 - ✅ `THEKAA Payment Method Screen Test Suite` (5 tests)
 - ✅ `THEKAA Order Placed Confirmation Screen Suite` (3 tests)
+- ✅ `THEKAA Order Details / Order Confirmed Screen Suite` (4 tests)
 
 ---
 

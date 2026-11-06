@@ -16,6 +16,7 @@ import 'package:thekaa/screens/address_selection_screen.dart';
 import 'package:thekaa/screens/coins_redemption_screen.dart';
 import 'package:thekaa/screens/payment_screen.dart';
 import 'package:thekaa/screens/order_placed_screen.dart';
+import 'package:thekaa/screens/order_details_screen.dart';
 import 'package:thekaa/models/payment_method.dart';
 import 'package:thekaa/models/order_confirmation.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
@@ -1271,6 +1272,169 @@ void main() {
       await tester.tap(find.text('View order details'));
       await tester.pumpAndSettle();
       expect(detailsViewed, isTrue);
+    });
+  });
+
+  group('THEKAA Order Details / Order Confirmed Screen Suite', () {
+    testWidgets('Renders all authoritative elements matching reference screenshot', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderDetailsScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Top Header
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+
+      // Cursive script message
+      expect(find.text('The kitchen has your order.'), findsOneWidget);
+
+      // Order ID & Today Row
+      expect(find.text('#THK84291'), findsWidgets);
+      expect(find.text('Today, 1:45 PM'), findsOneWidget);
+
+      // Card 1: Kitchen Acceptance (Green Card)
+      expect(find.text('Confirmed by Shadab Biryani'), findsOneWidget);
+      expect(
+        find.text("Your order is accepted. We'll let you know when preparation begins."),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.check_circle_outline_rounded), findsOneWidget);
+
+      // Card 2: Delivery ETA Card
+      expect(find.text('Arriving in 24–28 min'), findsOneWidget);
+      expect(find.text('Estimated 2:09–2:13 PM'), findsOneWidget);
+      expect(find.byIcon(Icons.access_time_rounded), findsOneWidget);
+
+      // Card 3: Restaurant & Dishes Order Summary Card
+      expect(find.text('Shadab Biryani'), findsWidgets);
+      expect(find.text('Gachibowli · #THK84291'), findsOneWidget);
+      expect(find.text('1 × Chicken Dum Biryani · ₹280'), findsOneWidget);
+      expect(find.text('1 × Mutton Biryani · ₹340'), findsOneWidget);
+      expect(find.text('2 items · No coins redeemed'), findsOneWidget);
+      expect(find.text('₹655'), findsOneWidget);
+
+      // Bottom Action Button: Full-width "Track your order"
+      expect(find.text('Track your order'), findsOneWidget);
+      expect(find.byIcon(Icons.alt_route_rounded), findsOneWidget);
+
+      // Bottom Navigation Bar with Orders tab active (index 3)
+      final bottomNavBarFinder = find.byType(ThekaaBottomNavBar);
+      expect(bottomNavBarFinder, findsOneWidget);
+      final ThekaaBottomNavBar navBar = tester.widget(bottomNavBarFinder);
+      expect(navBar.currentIndex, equals(3));
+    });
+
+    testWidgets('Dynamic screen reusability with Chutneys and TKC coins applied', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.chutneys,
+        cartQuantities: const {
+          'ghee_karam_dosa': 2,
+          'filter_coffee': 1,
+        },
+        payableAmount: 430.0,
+        coinsRedeemed: 100,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderDetailsScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.text('The kitchen has your order.'), findsOneWidget);
+      expect(find.text('#THK62180'), findsWidgets);
+      expect(find.text('Confirmed by Chutneys'), findsOneWidget);
+      expect(find.text('Arriving in 20–25 min'), findsOneWidget);
+      expect(find.text('Estimated 2:05–2:10 PM'), findsOneWidget);
+      expect(find.text('Chutneys'), findsWidgets);
+      expect(find.text('Gachibowli · #THK62180'), findsOneWidget);
+      expect(find.text('2 × Ghee Karam Dosa · ₹180'), findsOneWidget);
+      expect(find.text('1 × Filter Coffee · ₹70'), findsOneWidget);
+      expect(find.text('3 items · 100 TKC redeemed'), findsOneWidget);
+      expect(find.text('₹430'), findsOneWidget);
+    });
+
+    testWidgets('Interactive callbacks work (onBack, onTrackOrder, onNavTap)', (tester) async {
+      bool backed = false;
+      bool tracked = false;
+      int? tappedIndex;
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderDetailsScreen(
+            order: order,
+            onBack: () => backed = true,
+            onTrackOrder: () => tracked = true,
+            onNavTap: (i) => tappedIndex = i,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Back
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+      expect(backed, isTrue);
+
+      // Tap Track your order
+      await tester.tap(find.text('Track your order'));
+      await tester.pumpAndSettle();
+      expect(tracked, isTrue);
+
+      // Tap Profile tab (index 4)
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(tappedIndex, equals(4));
+    });
+
+    testWidgets('End-to-End: Order Placed -> View order details navigates to Order Details screen', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OrderPlacedScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Order placed, bhaiyya.'), findsOneWidget);
+      expect(find.byType(OrderDetailsScreen), findsNothing);
+
+      // Tap View order details
+      await tester.tap(find.text('View order details'));
+      await tester.pumpAndSettle();
+
+      // Should have navigated to OrderDetailsScreen
+      expect(find.byType(OrderDetailsScreen), findsOneWidget);
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.text('The kitchen has your order.'), findsOneWidget);
+      expect(find.text('Track your order'), findsOneWidget);
+
+      // Tap Back on Order Details Screen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
+      // Should be back at OrderPlacedScreen
+      expect(find.text('Order placed, bhaiyya.'), findsOneWidget);
+      expect(find.byType(OrderDetailsScreen), findsNothing);
     });
   });
 }

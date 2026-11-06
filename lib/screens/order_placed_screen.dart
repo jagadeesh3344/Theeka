@@ -6,6 +6,7 @@ import '../widgets/order_placed_actions.dart';
 import '../widgets/order_success_header.dart';
 import '../widgets/order_success_illustration.dart';
 import '../widgets/order_summary_card.dart';
+import 'order_details_screen.dart';
 
 class OrderPlacedScreen extends StatelessWidget {
   final OrderConfirmation order;
@@ -94,103 +95,13 @@ class OrderPlacedScreen extends StatelessWidget {
       return;
     }
 
-    // Default order details bottom sheet
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: ThekaaColors.cardBackground,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => OrderDetailsScreen(
+          order: order,
+          onBack: () => Navigator.of(context).pop(),
+        ),
       ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Order Details · ${order.orderId}',
-                      style: const TextStyle(
-                        fontFamily: 'Playfair Display',
-                        fontSize: 18,
-                        fontWeight: FontWeight.w700,
-                        color: ThekaaColors.primaryText,
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: ThekaaColors.primaryText),
-                      onPressed: () => Navigator.pop(context),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Text(
-                  '${order.restaurantName} (${order.restaurantArea})',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: ThekaaColors.primaryText,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Delivery to: ${order.deliveryAddress?.formattedAddress ?? 'Home'}',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12.5,
-                    color: Color(0xFF8F7D6D),
-                  ),
-                ),
-                const Divider(color: Color(0xFFEADBCE), height: 24),
-                ...order.items.map(
-                  (item) => Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 2.0),
-                    child: Text(
-                      item.formattedRow,
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 13,
-                        color: ThekaaColors.primaryText,
-                      ),
-                    ),
-                  ),
-                ),
-                const Divider(color: Color(0xFFEADBCE), height: 24),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Total Paid',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        color: ThekaaColors.primaryText,
-                      ),
-                    ),
-                    Text(
-                      '₹${order.totalPayable.toInt()}',
-                      style: const TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
-                        color: ThekaaColors.primaryText,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-              ],
-            ),
-          ),
-        );
-      },
     );
   }
 
