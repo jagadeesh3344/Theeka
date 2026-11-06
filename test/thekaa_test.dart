@@ -18,10 +18,13 @@ import 'package:thekaa/screens/payment_screen.dart';
 import 'package:thekaa/screens/order_placed_screen.dart';
 import 'package:thekaa/screens/order_details_screen.dart';
 import 'package:thekaa/screens/order_tracking_screen.dart';
+import 'package:thekaa/screens/rider_details_screen.dart';
 import 'package:thekaa/models/payment_method.dart';
 import 'package:thekaa/models/order_confirmation.dart';
+import 'package:thekaa/models/rider.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
 import 'package:thekaa/widgets/explore_restaurant_card.dart';
+import 'package:thekaa/widgets/rider_delivery_map.dart';
 
 void main() {
   group('THEKAA Home Screen & Components Test Suite', () {
@@ -1639,14 +1642,216 @@ void main() {
       expect(find.text('Restaurant preparing food'), findsOneWidget);
       expect(find.text('View order details'), findsOneWidget);
 
-      // Tap View order details to return back to OrderDetailsScreen
+      // Tap View order details to navigate to RiderDetailsScreen
       await tester.tap(find.text('View order details'));
       await tester.pumpAndSettle();
 
-      // Should be back on OrderDetailsScreen
+      // Should be on RiderDetailsScreen
+      expect(find.byType(RiderDetailsScreen), findsOneWidget);
+      expect(find.text('Meet your bhaiyya'), findsOneWidget);
+
+      // Tap Back on RiderDetailsScreen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on OrderTrackingScreen
+      expect(find.byType(OrderTrackingScreen), findsOneWidget);
+      expect(find.text('A little dum, a little time'), findsOneWidget);
+
+      // Tap Back on OrderTrackingScreen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on OrderDetailsScreen
       expect(find.byType(OrderDetailsScreen), findsOneWidget);
       expect(find.text('Order confirmed'), findsOneWidget);
-      expect(find.byType(OrderTrackingScreen), findsNothing);
+    });
+  });
+
+  group('THEKAA Rider & Delivery Details ("Meet your bhaiyya") Screen Suite', () {
+    testWidgets('Renders all authoritative elements matching reference screenshot', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RiderDetailsScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Top Header
+      expect(find.text('Meet your bhaiyya'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+
+      // Order ID · RIDER ASSIGNED · 1:53 PM
+      expect(find.text('#THK84291 · RIDER ASSIGNED · 1:53 PM'), findsOneWidget);
+
+      // Rider Profile Card
+      expect(find.text('Ravi K.'), findsOneWidget);
+      expect(find.text('4.8'), findsOneWidget);
+      expect(find.text('Your delivery partner'), findsOneWidget);
+      expect(find.byIcon(Icons.shield_outlined), findsOneWidget);
+      expect(find.text('Call'), findsOneWidget);
+      expect(find.byIcon(Icons.phone_outlined), findsOneWidget);
+      expect(find.text('Chat'), findsOneWidget);
+      expect(find.byIcon(Icons.chat_bubble_outline_rounded), findsOneWidget);
+
+      // Delivery statistics row
+      expect(find.text('1,240 deliveries'), findsOneWidget);
+      expect(find.text('2 years with THEKAA'), findsOneWidget);
+
+      // Rider status message card
+      expect(find.text('Ravi is heading to the restaurant'), findsOneWidget);
+      expect(
+        find.text("Your food has not been picked up yet. We'll update the status when he's on his way to you."),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.info_outline_rounded), findsOneWidget);
+
+      // Pickup and Dropoff Address Card
+      expect(find.text('Pickup · Shadab Biryani'), findsOneWidget);
+      expect(find.text('Gachibowli, Hyderabad'), findsOneWidget);
+      expect(find.text('Drop-off · Home'), findsOneWidget);
+      expect(
+        find.text('Flat 302, Vertex Heights, Gachibowli, Hyderabad 500032'),
+        findsOneWidget,
+      );
+
+      // Estimated Arrival Row
+      expect(find.text('Estimated arrival: 2:09–2:13 PM'), findsOneWidget);
+
+      // Contained Map Preview
+      expect(find.byType(RiderDeliveryMap), findsOneWidget);
+
+      // Action Button: View order details
+      expect(find.text('View order details'), findsOneWidget);
+
+      // Bottom Navigation Bar with Orders tab active (index 3)
+      final bottomNavBarFinder = find.byType(ThekaaBottomNavBar);
+      expect(bottomNavBarFinder, findsOneWidget);
+      final ThekaaBottomNavBar navBar = tester.widget(bottomNavBarFinder);
+      expect(navBar.currentIndex, equals(3));
+    });
+
+    testWidgets('Dynamic screen reusability with Chutneys, Work address, and Arjun M. rider', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.chutneys,
+        deliveryAddress: DeliveryAddress.defaultWork,
+        payableAmount: 430.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RiderDetailsScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Meet your bhaiyya'), findsOneWidget);
+      expect(find.text('#THK62180 · RIDER ASSIGNED · 1:58 PM'), findsOneWidget);
+      expect(find.text('Arjun M.'), findsOneWidget);
+      expect(find.text('4.9'), findsOneWidget);
+      expect(find.text('890 deliveries'), findsOneWidget);
+      expect(find.text('1 years with THEKAA'), findsOneWidget);
+      expect(find.text('Arjun is heading to the restaurant'), findsOneWidget);
+      expect(find.text('Pickup · Chutneys'), findsOneWidget);
+      expect(find.text('Drop-off · Work'), findsOneWidget);
+      expect(
+        find.text('Floor 5, Building 12, Madhapur, Hyderabad 500081'),
+        findsOneWidget,
+      );
+      expect(find.text('Estimated arrival: 2:05–2:10 PM'), findsOneWidget);
+    });
+
+    testWidgets('Interactive Call, Chat, View order details, and Back callbacks', (tester) async {
+      bool backed = false;
+      bool called = false;
+      bool chatted = false;
+      bool detailsViewed = false;
+      int? tappedIndex;
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RiderDetailsScreen(
+            order: order,
+            onBack: () => backed = true,
+            onCallRider: () => called = true,
+            onChatRider: () => chatted = true,
+            onViewOrderDetails: () => detailsViewed = true,
+            onNavTap: (i) => tappedIndex = i,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Back
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+      expect(backed, isTrue);
+
+      // Tap Call
+      await tester.tap(find.text('Call'));
+      await tester.pumpAndSettle();
+      expect(called, isTrue);
+
+      // Tap Chat
+      await tester.tap(find.text('Chat'));
+      await tester.pumpAndSettle();
+      expect(chatted, isTrue);
+
+      // Tap View order details
+      await tester.tap(find.text('View order details'));
+      await tester.pumpAndSettle();
+      expect(detailsViewed, isTrue);
+
+      // Tap Profile tab (index 4)
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(tappedIndex, equals(4));
+    });
+
+    testWidgets('End-to-End: RiderDetailsScreen -> View order details navigates to OrderDetailsScreen', (tester) async {
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: RiderDetailsScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Meet your bhaiyya'), findsOneWidget);
+      expect(find.byType(OrderDetailsScreen), findsNothing);
+
+      // Tap View order details
+      await tester.tap(find.text('View order details'));
+      await tester.pumpAndSettle();
+
+      // Should be on OrderDetailsScreen for the SAME order
+      expect(find.byType(OrderDetailsScreen), findsOneWidget);
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.text('#THK84291'), findsWidgets);
+      expect(find.text('Confirmed by Shadab Biryani'), findsOneWidget);
+
+      // Tap Back on OrderDetailsScreen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on RiderDetailsScreen
+      expect(find.byType(RiderDetailsScreen), findsOneWidget);
+      expect(find.text('Meet your bhaiyya'), findsOneWidget);
+      expect(find.byType(OrderDetailsScreen), findsNothing);
     });
   });
 }

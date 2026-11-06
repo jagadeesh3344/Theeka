@@ -34,7 +34,6 @@ class OrderDetailsScreen extends StatelessWidget {
         builder: (context) => OrderTrackingScreen(
           order: order,
           onBack: () => Navigator.of(context).pop(),
-          onViewOrderDetails: () => Navigator.of(context).pop(),
         ),
       ),
     );

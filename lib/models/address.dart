@@ -45,6 +45,16 @@ class DeliveryAddress {
   String get formattedAddress =>
       'Flat $flatBuilding, $streetArea,\n$city $pincode';
 
+  String get singleLineAddress {
+    final flatStr = flatBuilding.startsWith('Flat') ||
+            flatBuilding.startsWith('Floor') ||
+            flatBuilding.startsWith('Villa') ||
+            flatBuilding.startsWith('Level')
+        ? flatBuilding
+        : 'Flat $flatBuilding';
+    return '$flatStr, $locality, $city $pincode';
+  }
+
   String get locationSummary => '$city, $state · $pincode';
 
   DeliveryAddress copyWith({

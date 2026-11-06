@@ -9,6 +9,7 @@ import '../widgets/order_tracking_summary_card.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
 import '../widgets/view_order_details_button.dart';
 import 'order_details_screen.dart';
+import 'rider_details_screen.dart';
 
 class OrderTrackingScreen extends StatelessWidget {
   final OrderConfirmation order;
@@ -38,18 +39,24 @@ class OrderTrackingScreen extends StatelessWidget {
       return;
     }
 
-    if (Navigator.of(context).canPop()) {
-      Navigator.of(context).pop();
-    } else {
-      Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => OrderDetailsScreen(
-            order: order,
-            onBack: () => Navigator.of(context).pop(),
-          ),
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => RiderDetailsScreen(
+          order: order,
+          onBack: () => Navigator.of(context).pop(),
+          onViewOrderDetails: () {
+            Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (context) => OrderDetailsScreen(
+                  order: order,
+                  onBack: () => Navigator.of(context).pop(),
+                ),
+              ),
+            );
+          },
         ),
-      );
-    }
+      ),
+    );
   }
 
   @override
@@ -112,3 +119,4 @@ class OrderTrackingScreen extends StatelessWidget {
     );
   }
 }
+

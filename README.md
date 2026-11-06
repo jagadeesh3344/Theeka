@@ -104,6 +104,24 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
     - Fixed bottom action button: `View order details` with warm cream background and terracotta border.
     - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
 
+13. **Rider & Delivery Details Screen ("Meet your bhaiyya")**
+    - Delivery partner details opened via "View order details" from the Order Tracking screen.
+    - Top navigation header: `< Meet your bhaiyya` in Playfair Display serif (`#49362B`).
+    - Order meta subheader: `#[ORDER ID] · RIDER ASSIGNED · [TIME]` (e.g. `#THK84291 · RIDER ASSIGNED · 1:53 PM`).
+    - Rider profile card:
+      - Circular partner photo avatar (or fallback).
+      - Partner name (`Ravi K.`), star rating (`4.8`), role (`Your delivery partner`), and security shield badge.
+      - Dual equal-width contact buttons: **`Call`** and **`Chat`** with terracotta border and icons.
+    - Rider stats row: Delivery count (`1,240 deliveries`) and platform tenure (`2 years with THEKAA`).
+    - Status message card: Pale yellow info card (`Ravi is heading to the restaurant` / *"Your food has not been picked up yet. We'll update the status when he's on his way to you."*).
+    - Connected Pickup & Drop-off card:
+      - Restaurant pickup address (`Pickup · Shadab Biryani`, `Gachibowli, Hyderabad`).
+      - Customer drop-off address (`Drop-off · Home`, `Flat 302, Vertex Heights, Gachibowli, Hyderabad 500032`).
+    - Estimated arrival row: `Estimated arrival: 2:09–2:13 PM` in bold terracotta.
+    - Contained delivery route map preview canvas with pickup and destination markers.
+    - Fixed bottom action button: `View order details` navigating to the authoritative Order Details screen for the same order.
+    - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -118,6 +136,7 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
   - `ThekaaLoyaltyQuote`
   - `PaymentDetails` & `PaymentMethodType`
   - `OrderConfirmation` & `OrderItemDetail`
+  - `Rider`
 
 ---
 
@@ -149,7 +168,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 48 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 52 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -166,6 +185,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Order Placed Confirmation Screen Suite` (3 tests)
 - ✅ `THEKAA Order Details / Order Confirmed Screen Suite` (4 tests)
 - ✅ `THEKAA Order Tracking Screen Suite` (5 tests)
+- ✅ `THEKAA Rider & Delivery Details ("Meet your bhaiyya") Screen Suite` (4 tests)
 
 ---
 

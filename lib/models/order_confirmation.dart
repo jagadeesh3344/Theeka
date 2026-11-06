@@ -1,6 +1,7 @@
 import 'address.dart';
 import 'payment_method.dart';
 import 'restaurant.dart';
+import 'rider.dart';
 
 enum OrderTrackingStatus {
   orderConfirmed,
@@ -47,6 +48,7 @@ class OrderConfirmation {
   final String restaurantImagePath;
   final OrderTrackingStatus trackingStatus;
   final String? customStatusMessage;
+  final Rider? assignedRider;
 
   const OrderConfirmation({
     required this.orderId,
@@ -65,7 +67,12 @@ class OrderConfirmation {
     this.restaurantImagePath = 'assets/images/biryani.png',
     this.trackingStatus = OrderTrackingStatus.preparingFood,
     this.customStatusMessage,
+    this.assignedRider,
   });
+
+  Rider get rider =>
+      assignedRider ??
+      (restaurantId == 'chutneys' ? Rider.chutneysRider : Rider.defaultRider);
 
   int get totalItemCount =>
       items.fold(0, (sum, item) => sum + item.quantity);
@@ -124,6 +131,7 @@ class OrderConfirmation {
     String? restaurantImagePath,
     OrderTrackingStatus? trackingStatus,
     String? customStatusMessage,
+    Rider? assignedRider,
   }) {
     return OrderConfirmation(
       orderId: orderId ?? this.orderId,
@@ -142,6 +150,7 @@ class OrderConfirmation {
       restaurantImagePath: restaurantImagePath ?? this.restaurantImagePath,
       trackingStatus: trackingStatus ?? this.trackingStatus,
       customStatusMessage: customStatusMessage ?? this.customStatusMessage,
+      assignedRider: assignedRider ?? this.assignedRider,
     );
   }
 
@@ -155,6 +164,7 @@ class OrderConfirmation {
     String? customOrderId,
     OrderTrackingStatus trackingStatus = OrderTrackingStatus.preparingFood,
     String? customStatusMessage,
+    Rider? assignedRider,
   }) {
     final orderId = customOrderId ??
         (restaurant.id == 'chutneys' ? '#THK62180' : '#THK84291');
@@ -260,6 +270,8 @@ class OrderConfirmation {
       restaurantImagePath: restaurant.imagePath.isNotEmpty ? restaurant.imagePath : 'assets/images/biryani.png',
       trackingStatus: trackingStatus,
       customStatusMessage: customStatusMessage,
+      assignedRider: assignedRider ??
+          (restaurant.id == 'chutneys' ? Rider.chutneysRider : Rider.defaultRider),
     );
   }
 }
