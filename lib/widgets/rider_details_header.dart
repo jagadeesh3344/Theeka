@@ -45,3 +45,4 @@ class RiderDetailsHeader extends StatelessWidget {
     );
   }
 }
+

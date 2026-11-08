@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'address.dart';
 import 'payment_method.dart';
 import 'restaurant.dart';
@@ -49,6 +50,13 @@ class OrderConfirmation {
   final OrderTrackingStatus trackingStatus;
   final String? customStatusMessage;
   final Rider? assignedRider;
+  final int remainingMinutes;
+  final double remainingDistanceKm;
+  final String outForDeliveryTime;
+  final String arrivalAroundTime;
+  final Offset? riderLocation;
+  final Offset? restaurantLocation;
+  final Offset? dropoffLocation;
 
   const OrderConfirmation({
     required this.orderId,
@@ -68,6 +76,13 @@ class OrderConfirmation {
     this.trackingStatus = OrderTrackingStatus.preparingFood,
     this.customStatusMessage,
     this.assignedRider,
+    this.remainingMinutes = 12,
+    this.remainingDistanceKm = 2.8,
+    this.outForDeliveryTime = '2:00 PM',
+    this.arrivalAroundTime = '2:12 PM',
+    this.riderLocation = const Offset(0.60, 0.28),
+    this.restaurantLocation = const Offset(0.25, 0.70),
+    this.dropoffLocation = const Offset(0.76, 0.38),
   });
 
   Rider get rider =>
@@ -132,6 +147,13 @@ class OrderConfirmation {
     OrderTrackingStatus? trackingStatus,
     String? customStatusMessage,
     Rider? assignedRider,
+    int? remainingMinutes,
+    double? remainingDistanceKm,
+    String? outForDeliveryTime,
+    String? arrivalAroundTime,
+    Offset? riderLocation,
+    Offset? restaurantLocation,
+    Offset? dropoffLocation,
   }) {
     return OrderConfirmation(
       orderId: orderId ?? this.orderId,
@@ -151,6 +173,13 @@ class OrderConfirmation {
       trackingStatus: trackingStatus ?? this.trackingStatus,
       customStatusMessage: customStatusMessage ?? this.customStatusMessage,
       assignedRider: assignedRider ?? this.assignedRider,
+      remainingMinutes: remainingMinutes ?? this.remainingMinutes,
+      remainingDistanceKm: remainingDistanceKm ?? this.remainingDistanceKm,
+      outForDeliveryTime: outForDeliveryTime ?? this.outForDeliveryTime,
+      arrivalAroundTime: arrivalAroundTime ?? this.arrivalAroundTime,
+      riderLocation: riderLocation ?? this.riderLocation,
+      restaurantLocation: restaurantLocation ?? this.restaurantLocation,
+      dropoffLocation: dropoffLocation ?? this.dropoffLocation,
     );
   }
 
@@ -165,6 +194,13 @@ class OrderConfirmation {
     OrderTrackingStatus trackingStatus = OrderTrackingStatus.preparingFood,
     String? customStatusMessage,
     Rider? assignedRider,
+    int? remainingMinutes,
+    double? remainingDistanceKm,
+    String? outForDeliveryTime,
+    String? arrivalAroundTime,
+    Offset? riderLocation,
+    Offset? restaurantLocation,
+    Offset? dropoffLocation,
   }) {
     final orderId = customOrderId ??
         (restaurant.id == 'chutneys' ? '#THK62180' : '#THK84291');
@@ -272,6 +308,13 @@ class OrderConfirmation {
       customStatusMessage: customStatusMessage,
       assignedRider: assignedRider ??
           (restaurant.id == 'chutneys' ? Rider.chutneysRider : Rider.defaultRider),
+      remainingMinutes: remainingMinutes ?? (restaurant.id == 'chutneys' ? 10 : 12),
+      remainingDistanceKm: remainingDistanceKm ?? (restaurant.id == 'chutneys' ? 2.1 : 2.8),
+      outForDeliveryTime: outForDeliveryTime ?? '2:00 PM',
+      arrivalAroundTime: arrivalAroundTime ?? (restaurant.id == 'chutneys' ? '2:10 PM' : '2:12 PM'),
+      riderLocation: riderLocation ?? const Offset(0.60, 0.28),
+      restaurantLocation: restaurantLocation ?? const Offset(0.25, 0.70),
+      dropoffLocation: dropoffLocation ?? const Offset(0.76, 0.38),
     );
   }
 }

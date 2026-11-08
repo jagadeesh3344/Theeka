@@ -122,6 +122,23 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
     - Fixed bottom action button: `View order details` navigating to the authoritative Order Details screen for the same order.
     - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
 
+14. **Rider Live-Location / Delivery Map Screen ("On the way to you")**
+    - High-fidelity live rider tracking opened by tapping the map area in "Meet your bhaiyya".
+    - Top navigation header: `< On the way to you` in Playfair Display serif (`#49362B`).
+    - Order meta subheader: `#[ORDER ID] · OUT FOR DELIVERY · [TIME]` (e.g. `#THK84291 · OUT FOR DELIVERY · 2:00 PM`).
+    - Large live delivery route map (230px height, radius 18):
+      - Visual road grid with Gachibowli, Botanical garden, and Old Mumbai Highway.
+      - 3 interactive circular location markers: Pickup Restaurant, Live Rider Position, and Drop-off Destination.
+      - Prominent terracotta delivery route path connecting restaurant to rider and destination.
+      - GPS map control indicator button.
+    - ETA & Distance summary card:
+      - Left: Big minutes display (`12 min`, `Arriving around 2:12 PM`) with clock icon.
+      - Right: Remaining distance (`2.8 km`, `remaining`).
+    - Compact Rider profile card with avatar, rating (`⭐ 4.8`), verification shield, and **`Call`** / **`Chat`** action buttons.
+    - Delivering to Address card: Customer drop-off address (`Delivering to Home`, `Flat 302, Vertex Heights, Gachibowli, Hyderabad 500032`).
+    - Fixed bottom action button: `View order details` returning to `OrderDetailsScreen`.
+    - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -168,7 +185,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 52 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 57 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -185,7 +202,8 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Order Placed Confirmation Screen Suite` (3 tests)
 - ✅ `THEKAA Order Details / Order Confirmed Screen Suite` (4 tests)
 - ✅ `THEKAA Order Tracking Screen Suite` (5 tests)
-- ✅ `THEKAA Rider & Delivery Details ("Meet your bhaiyya") Screen Suite` (4 tests)
+- ✅ `THEKAA Rider & Delivery Details ("Meet your bhaiyya") Screen Suite` (5 tests)
+- ✅ `THEKAA Live Location / On The Way Screen Suite` (4 tests)
 
 ---
 

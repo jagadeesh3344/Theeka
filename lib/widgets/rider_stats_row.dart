@@ -41,3 +41,4 @@ class RiderStatsRow extends StatelessWidget {
     );
   }
 }
+

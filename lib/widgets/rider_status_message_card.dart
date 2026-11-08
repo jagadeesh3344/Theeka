@@ -65,3 +65,4 @@ class RiderStatusMessageCard extends StatelessWidget {
     );
   }
 }
+

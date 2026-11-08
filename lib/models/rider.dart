@@ -99,3 +99,4 @@ class Rider {
     assignedTime: '1:58 PM',
   );
 }
+

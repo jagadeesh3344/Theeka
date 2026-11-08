@@ -93,13 +93,17 @@ class RiderProfileCard extends StatelessWidget {
                           ),
                         ),
                         const SizedBox(width: 6),
-                        Text(
-                          rider.role,
-                          style: const TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12.0,
-                            fontWeight: FontWeight.w400,
-                            color: Color(0xFF8F7D6D),
+                        Flexible(
+                          child: Text(
+                            rider.role,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 12.0,
+                              fontWeight: FontWeight.w400,
+                              color: Color(0xFF8F7D6D),
+                            ),
                           ),
                         ),
                       ],
@@ -222,3 +226,4 @@ class RiderProfileCard extends StatelessWidget {
     );
   }
 }
+

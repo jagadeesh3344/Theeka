@@ -11,6 +11,7 @@ import '../widgets/rider_stats_row.dart';
 import '../widgets/rider_status_message_card.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
 import '../widgets/view_order_details_button.dart';
+import 'on_the_way_screen.dart';
 import 'order_details_screen.dart';
 
 class RiderDetailsScreen extends StatelessWidget {
@@ -19,6 +20,7 @@ class RiderDetailsScreen extends StatelessWidget {
   final VoidCallback? onViewOrderDetails;
   final VoidCallback? onCallRider;
   final VoidCallback? onChatRider;
+  final VoidCallback? onMapTap;
   final ValueChanged<int>? onNavTap;
 
   const RiderDetailsScreen({
@@ -28,6 +30,7 @@ class RiderDetailsScreen extends StatelessWidget {
     this.onViewOrderDetails,
     this.onCallRider,
     this.onChatRider,
+    this.onMapTap,
     this.onNavTap,
   });
 
@@ -48,6 +51,22 @@ class RiderDetailsScreen extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => OrderDetailsScreen(
+          order: order,
+          onBack: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+  }
+
+  void _handleMapTap(BuildContext context) {
+    if (onMapTap != null) {
+      onMapTap!();
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => OnTheWayScreen(
           order: order,
           onBack: () => Navigator.of(context).pop(),
         ),
@@ -99,8 +118,11 @@ class RiderDetailsScreen extends StatelessWidget {
                     // Estimated Arrival Row
                     RiderDeliveryEtaRow(order: order),
 
-                    // Contained Map Preview Section
-                    RiderDeliveryMap(order: order),
+                    // Contained Map Preview Section (Tappable to open "On the way to you")
+                    RiderDeliveryMap(
+                      order: order,
+                      onTap: () => _handleMapTap(context),
+                    ),
 
                     const SizedBox(height: 10),
                   ],
@@ -130,3 +152,4 @@ class RiderDetailsScreen extends StatelessWidget {
     );
   }
 }
+
