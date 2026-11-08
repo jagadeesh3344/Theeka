@@ -22,6 +22,7 @@ class DabbaScreen extends StatelessWidget {
         if (restaurant.bestsellers.isNotEmpty) restaurant.bestsellers[0].id: 1,
         if (restaurant.bestsellers.length > 1) restaurant.bestsellers[1].id: 1,
       },
+      showBottomNav: false, // Parent MainScaffold provides the single bottom navigation bar
       onBack: () {
         onBottomNavTap?.call(0); // Return to Home
       },

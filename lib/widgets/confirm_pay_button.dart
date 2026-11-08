@@ -44,7 +44,7 @@ class ConfirmPayButton extends StatelessWidget {
               onPressed: isProcessing ? null : onPressed,
               style: ElevatedButton.styleFrom(
                 backgroundColor: ThekaaColors.terracotta,
-                disabledBackgroundColor: ThekaaColors.terracotta.withOpacity(0.65),
+                disabledBackgroundColor: ThekaaColors.terracotta.withValues(alpha: 0.65),
                 foregroundColor: Colors.white,
                 elevation: 0,
                 shape: RoundedRectangleBorder(

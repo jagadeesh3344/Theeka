@@ -40,7 +40,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
   UpiProvider _selectedUpiProvider = UpiProvider.googlePay;
   late final TextEditingController _upiController;
   bool _isProcessing = false;
-  String? _errorMessage;
 
   @override
   void initState() {
@@ -66,9 +65,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (_selectedMethod == PaymentMethodType.upi) {
       final upiText = _upiController.text.trim();
       if (upiText.isEmpty) {
-        setState(() {
-          _errorMessage = 'Please enter a valid UPI ID';
-        });
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             backgroundColor: ThekaaColors.terracotta,
@@ -84,7 +80,6 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
     setState(() {
       _isProcessing = true;
-      _errorMessage = null;
     });
 
     // Simulate brief payment processing

@@ -21,15 +21,8 @@ import 'package:thekaa/screens/order_tracking_screen.dart';
 import 'package:thekaa/screens/rider_details_screen.dart';
 import 'package:thekaa/screens/on_the_way_screen.dart';
 import 'package:thekaa/screens/delivered_order_screen.dart';
-import 'package:thekaa/widgets/delivered_header.dart';
-import 'package:thekaa/widgets/delivered_success_illustration.dart';
-import 'package:thekaa/widgets/delivered_experience_rating_card.dart';
-import 'package:thekaa/widgets/delivered_review_reminder_card.dart';
-import 'package:thekaa/widgets/delivered_action_buttons.dart';
 import 'package:thekaa/widgets/live_delivery_map.dart';
-import 'package:thekaa/models/payment_method.dart';
 import 'package:thekaa/models/order_confirmation.dart';
-import 'package:thekaa/models/rider.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
 import 'package:thekaa/widgets/explore_restaurant_card.dart';
 import 'package:thekaa/widgets/rider_delivery_map.dart';
@@ -110,6 +103,8 @@ void main() {
       await tester.tap(find.text('DABBA').first);
       await tester.pumpAndSettle();
       expect(find.text('Your dabba awaits'), findsOneWidget);
+      // Verify exactly ONE bottom navigation bar exists (no duplicate)
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
 
       // Tap Orders tab
       await tester.tap(find.text('Orders').first);

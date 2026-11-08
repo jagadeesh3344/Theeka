@@ -16,6 +16,7 @@ class CartScreen extends StatefulWidget {
   final VoidCallback? onAddMore;
   final VoidCallback? onProceedToCheckout;
   final ValueChanged<int>? onBottomNavTap;
+  final bool showBottomNav;
 
   const CartScreen({
     super.key,
@@ -25,6 +26,7 @@ class CartScreen extends StatefulWidget {
     this.onAddMore,
     this.onProceedToCheckout,
     this.onBottomNavTap,
+    this.showBottomNav = true,
   });
 
   @override
@@ -225,17 +227,21 @@ class _CartScreenState extends State<CartScreen> {
                 ),
               ),
             ),
-
-            // SECTION H — FIXED BOTTOM NAVIGATION (DABBA is active)
-            ThekaaBottomNavBar(
-              currentIndex: 2, // DABBA is active on Cart Screen
-              onTap: (index) {
-                widget.onBottomNavTap?.call(index);
-              },
-            ),
           ],
         ),
       ),
+      bottomNavigationBar: widget.showBottomNav
+          ? ThekaaBottomNavBar(
+              currentIndex: 2, // DABBA is active on Cart Screen
+              onTap: (index) {
+                if (widget.onBottomNavTap != null) {
+                  widget.onBottomNavTap!(index);
+                } else if (index == 0) {
+                  widget.onBack();
+                }
+              },
+            )
+          : null,
     );
   }
 }
