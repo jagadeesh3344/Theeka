@@ -144,5 +144,12 @@ class ThekaaTypography {
         letterSpacing: 0.5,
         color: ThekaaColors.primaryText,
       );
+
+  /// Caption / Small helper text
+  static TextStyle get captionText => GoogleFonts.inter(
+        fontSize: 12,
+        fontWeight: FontWeight.w500,
+        color: ThekaaColors.secondaryText,
+      );
 }
 

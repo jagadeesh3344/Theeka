@@ -21,6 +21,14 @@ import 'package:thekaa/screens/order_tracking_screen.dart';
 import 'package:thekaa/screens/rider_details_screen.dart';
 import 'package:thekaa/screens/on_the_way_screen.dart';
 import 'package:thekaa/screens/delivered_order_screen.dart';
+import 'package:thekaa/screens/profile_screen.dart';
+import 'package:thekaa/models/user_profile.dart';
+import 'package:thekaa/widgets/profile_header.dart';
+import 'package:thekaa/widgets/profile_avatar_section.dart';
+import 'package:thekaa/widgets/profile_stats_row.dart';
+import 'package:thekaa/widgets/edit_profile_button.dart';
+import 'package:thekaa/widgets/profile_coins_card.dart';
+import 'package:thekaa/widgets/profile_menu_container.dart';
 import 'package:thekaa/widgets/live_delivery_map.dart';
 import 'package:thekaa/models/order_confirmation.dart';
 import 'package:thekaa/widgets/map_list_selector.dart';
@@ -114,7 +122,8 @@ void main() {
       // Tap Profile tab
       await tester.tap(find.text('Profile').first);
       await tester.pumpAndSettle();
-      expect(find.text('Hyderabad Foodie'), findsOneWidget);
+      expect(find.text('My THEKAA'), findsOneWidget);
+      expect(find.text('hero M.'), findsOneWidget);
 
       // Return to Home tab
       await tester.tap(find.text('Home').first);
@@ -2366,6 +2375,181 @@ void main() {
       expect(find.text('Khaana aa gaya!'), findsOneWidget);
       expect(find.text('Enjoy every last grain.'), findsOneWidget);
       expect(find.text('DELIVERED · 01 NOV 2026 · 2:12 PM'), findsOneWidget);
+    });
+  });
+
+  group('THEKAA Profile / My THEKAA Screen Suite', () {
+    testWidgets('ProfileScreen renders all visual elements matching reference screenshot', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: ProfileScreen(showBottomNav: true),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header
+      expect(find.byType(ProfileHeader), findsOneWidget);
+      expect(find.text('My THEKAA'), findsOneWidget);
+      expect(find.byIcon(Icons.settings_outlined), findsOneWidget);
+
+      // Avatar & user info
+      expect(find.byType(ProfileAvatarSection), findsOneWidget);
+      expect(find.text('hero M.'), findsOneWidget);
+      expect(find.text('@herom'), findsOneWidget);
+      expect(find.text('Hyderabad on a plate. Biryani, chai & honest stories.'), findsOneWidget);
+
+      // Stats row
+      expect(find.byType(ProfileStatsRow), findsOneWidget);
+      expect(find.text('48'), findsOneWidget);
+      expect(find.text('Posts'), findsOneWidget);
+      expect(find.text('2.4K'), findsOneWidget);
+      expect(find.text('Followers'), findsOneWidget);
+      expect(find.text('312'), findsOneWidget);
+      expect(find.text('Following'), findsOneWidget);
+
+      // Edit profile button
+      expect(find.byType(EditProfileButton), findsOneWidget);
+      expect(find.text('Edit profile'), findsOneWidget);
+      expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
+
+      // THEKAA coins card
+      expect(find.byType(ProfileCoinsCard), findsOneWidget);
+      expect(find.text('1,200 THEKAA Coins'), findsOneWidget);
+      expect(find.text('Your good taste, appreciated'), findsOneWidget);
+      expect(find.text('View wallet'), findsOneWidget);
+
+      // Profile menu container
+      expect(find.byType(ProfileMenuContainer), findsOneWidget);
+      expect(find.text('Account details'), findsOneWidget);
+      expect(find.text('Personal information & sign-in'), findsOneWidget);
+      expect(find.byIcon(Icons.person_outline_rounded), findsOneWidget);
+
+      expect(find.text('Saved addresses'), findsOneWidget);
+      expect(find.text('Home, Work & your favourite places'), findsOneWidget);
+      expect(find.byIcon(Icons.location_on_outlined), findsOneWidget);
+
+      expect(find.text('Food preferences'), findsOneWidget);
+      expect(find.text('Make discovery feel more like you'), findsOneWidget);
+      expect(find.byIcon(Icons.restaurant_outlined), findsOneWidget);
+
+      expect(find.text('Help & Support'), findsOneWidget);
+      expect(find.text('Your account, your control'), findsOneWidget);
+      expect(find.byIcon(Icons.verified_user_outlined), findsOneWidget);
+
+      // Single bottom navigation bar
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+
+    testWidgets('ProfileScreen renders dynamic user data from UserProfile model', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      const customProfile = UserProfile(
+        name: 'Aisha Rao',
+        handle: '@aisharao',
+        bio: 'Exploring every Haleem spot in Charminar.',
+        postsCount: 112,
+        followersCount: '8.9K',
+        followingCount: 450,
+        coinBalance: 3450,
+        coinsSubtitle: 'Elite Food Connoisseur',
+      );
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: ProfileScreen(
+            profile: customProfile,
+            showBottomNav: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Aisha Rao'), findsOneWidget);
+      expect(find.text('@aisharao'), findsOneWidget);
+      expect(find.text('Exploring every Haleem spot in Charminar.'), findsOneWidget);
+      expect(find.text('112'), findsOneWidget);
+      expect(find.text('8.9K'), findsOneWidget);
+      expect(find.text('450'), findsOneWidget);
+      expect(find.text('3,450 THEKAA Coins'), findsOneWidget);
+      expect(find.text('Elite Food Connoisseur'), findsOneWidget);
+      expect(find.byType(ThekaaBottomNavBar), findsNothing);
+    });
+
+    testWidgets('ProfileScreen action callbacks trigger when tapped', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      bool settingsTapped = false;
+      bool editTapped = false;
+      bool walletTapped = false;
+      bool accountTapped = false;
+      bool addressesTapped = false;
+      bool foodPrefsTapped = false;
+      bool helpTapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ProfileScreen(
+            showBottomNav: false,
+            onSettingsTap: () => settingsTapped = true,
+            onEditProfile: () => editTapped = true,
+            onViewWallet: () => walletTapped = true,
+            onAccountDetails: () => accountTapped = true,
+            onSavedAddresses: () => addressesTapped = true,
+            onFoodPreferences: () => foodPrefsTapped = true,
+            onHelpSupport: () => helpTapped = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.settings_outlined));
+      expect(settingsTapped, isTrue);
+
+      await tester.tap(find.text('Edit profile'));
+      expect(editTapped, isTrue);
+
+      await tester.tap(find.text('View wallet'));
+      expect(walletTapped, isTrue);
+
+      await tester.tap(find.text('Account details'));
+      expect(accountTapped, isTrue);
+
+      await tester.tap(find.text('Saved addresses'));
+      expect(addressesTapped, isTrue);
+
+      await tester.tap(find.text('Food preferences'));
+      expect(foodPrefsTapped, isTrue);
+
+      await tester.tap(find.text('Help & Support'));
+      expect(helpTapped, isTrue);
+    });
+
+    testWidgets('MainScaffold Profile Tab has exactly one bottom navigation bar with Profile active', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Navigate to Profile tab
+      await tester.tap(find.text('Profile').first);
+      await tester.pumpAndSettle();
+
+      // Ensure Profile screen is displayed
+      expect(find.text('My THEKAA'), findsOneWidget);
+      expect(find.text('hero M.'), findsOneWidget);
+
+      // Verify EXACTLY ONE bottom navigation bar exists across the entire app hierarchy
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
     });
   });
 }

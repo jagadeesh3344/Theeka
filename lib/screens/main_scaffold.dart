@@ -194,7 +194,7 @@ class _MainScaffoldState extends State<MainScaffold> {
         },
       ),
       const OrdersScreen(),
-      const ProfileScreen(),
+      const ProfileScreen(showBottomNav: false),
     ];
 
     return Scaffold(

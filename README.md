@@ -158,6 +158,30 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
       - Dual secondary outlined buttons: **`Reorder`** (opens Cart with preserved items) and **`Order details`** (opens Order Details for the same order).
     - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
 
+16. **Profile / My THEKAA Screen ("My THEKAA")**
+    - Accessible directly via the fixed bottom navigation bar on tab 5 (**Profile**, `currentIndex: 4`).
+    - Top header: `My THEKAA` in Playfair Display serif (`#49362B`, 22px) with right-aligned settings gear icon.
+    - User Profile section:
+      - Centered circular user profile photo with subtle warm beige border (`assets/images/user_avatar.png`).
+      - User name: `hero M.` in bold serif.
+      - User handle: `@herom` in terracotta accent.
+      - User bio: *"Hyderabad on a plate. Biryani, chai & honest stories."*
+    - Community Statistics row:
+      - `48` Posts | `2.4K` Followers | `312` Following
+    - Outlined Action Button:
+      - `Edit profile` with edit pencil icon and responsive ripple feedback.
+    - THEKAA Coins Card:
+      - Interlocking coins vector icon in terracotta.
+      - `1,200 THEKAA Coins` balance display.
+      - Subtitle: *"Your good taste, appreciated"*.
+      - `View wallet >` interactive chevron action.
+    - Account Management Menu Card:
+      - `Account details` (`Personal information & sign-in`, person icon).
+      - `Saved addresses` (`Home, Work & your favourite places`, location pin icon).
+      - `Food preferences` (`Make discovery feel more like you`, cutlery icon).
+      - `Help & Support` (`Your account, your control`, shield icon).
+    - Fixed 5-destination bottom navigation bar with **Profile tab active (`currentIndex: 4`)** and single source of truth (no duplicate navigation bars).
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -173,6 +197,7 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
   - `PaymentDetails` & `PaymentMethodType`
   - `OrderConfirmation` & `OrderItemDetail`
   - `Rider`
+  - `UserProfile`
 
 ---
 
@@ -204,7 +229,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 64 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 68 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -224,6 +249,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Rider & Delivery Details ("Meet your bhaiyya") Screen Suite` (5 tests)
 - ✅ `THEKAA Live Location / On The Way Screen Suite` (4 tests)
 - ✅ `THEKAA Delivered Order ("Khaana aa gaya!") Screen Suite` (7 tests)
+- ✅ `THEKAA Profile / My THEKAA Screen Suite` (4 tests)
 
 ---
 
