@@ -57,6 +57,10 @@ class OrderConfirmation {
   final Offset? riderLocation;
   final Offset? restaurantLocation;
   final Offset? dropoffLocation;
+  final String? deliveredDate;
+  final String? deliveredTime;
+  final int userRating;
+  final bool reviewSubmitted;
 
   const OrderConfirmation({
     required this.orderId,
@@ -83,7 +87,17 @@ class OrderConfirmation {
     this.riderLocation = const Offset(0.60, 0.28),
     this.restaurantLocation = const Offset(0.25, 0.70),
     this.dropoffLocation = const Offset(0.76, 0.38),
+    this.deliveredDate,
+    this.deliveredTime,
+    this.userRating = 0,
+    this.reviewSubmitted = false,
   });
+
+  String get deliveredTimestampText {
+    final dDate = (deliveredDate ?? date).toUpperCase();
+    final dTime = deliveredTime ?? arrivalAroundTime;
+    return 'DELIVERED · $dDate · $dTime';
+  }
 
   Rider get rider =>
       assignedRider ??
@@ -154,6 +168,10 @@ class OrderConfirmation {
     Offset? riderLocation,
     Offset? restaurantLocation,
     Offset? dropoffLocation,
+    String? deliveredDate,
+    String? deliveredTime,
+    int? userRating,
+    bool? reviewSubmitted,
   }) {
     return OrderConfirmation(
       orderId: orderId ?? this.orderId,
@@ -180,6 +198,10 @@ class OrderConfirmation {
       riderLocation: riderLocation ?? this.riderLocation,
       restaurantLocation: restaurantLocation ?? this.restaurantLocation,
       dropoffLocation: dropoffLocation ?? this.dropoffLocation,
+      deliveredDate: deliveredDate ?? this.deliveredDate,
+      deliveredTime: deliveredTime ?? this.deliveredTime,
+      userRating: userRating ?? this.userRating,
+      reviewSubmitted: reviewSubmitted ?? this.reviewSubmitted,
     );
   }
 
@@ -201,6 +223,10 @@ class OrderConfirmation {
     Offset? riderLocation,
     Offset? restaurantLocation,
     Offset? dropoffLocation,
+    String? deliveredDate,
+    String? deliveredTime,
+    int userRating = 0,
+    bool reviewSubmitted = false,
   }) {
     final orderId = customOrderId ??
         (restaurant.id == 'chutneys' ? '#THK62180' : '#THK84291');
@@ -315,6 +341,10 @@ class OrderConfirmation {
       riderLocation: riderLocation ?? const Offset(0.60, 0.28),
       restaurantLocation: restaurantLocation ?? const Offset(0.25, 0.70),
       dropoffLocation: dropoffLocation ?? const Offset(0.76, 0.38),
+      deliveredDate: deliveredDate,
+      deliveredTime: deliveredTime,
+      userRating: userRating,
+      reviewSubmitted: reviewSubmitted,
     );
   }
 }

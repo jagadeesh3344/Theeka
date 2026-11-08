@@ -252,3 +252,4 @@ class LiveRouteMapPainter extends CustomPainter {
         oldDelegate.dropoffLocation != dropoffLocation;
   }
 }
+

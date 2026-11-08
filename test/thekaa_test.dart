@@ -20,6 +20,12 @@ import 'package:thekaa/screens/order_details_screen.dart';
 import 'package:thekaa/screens/order_tracking_screen.dart';
 import 'package:thekaa/screens/rider_details_screen.dart';
 import 'package:thekaa/screens/on_the_way_screen.dart';
+import 'package:thekaa/screens/delivered_order_screen.dart';
+import 'package:thekaa/widgets/delivered_header.dart';
+import 'package:thekaa/widgets/delivered_success_illustration.dart';
+import 'package:thekaa/widgets/delivered_experience_rating_card.dart';
+import 'package:thekaa/widgets/delivered_review_reminder_card.dart';
+import 'package:thekaa/widgets/delivered_action_buttons.dart';
 import 'package:thekaa/widgets/live_delivery_map.dart';
 import 'package:thekaa/models/payment_method.dart';
 import 'package:thekaa/models/order_confirmation.dart';
@@ -2079,6 +2085,292 @@ void main() {
       expect(find.byType(OnTheWayScreen), findsOneWidget);
       expect(find.text('On the way to you'), findsOneWidget);
       expect(find.byType(OrderDetailsScreen), findsNothing);
+    });
+  });
+
+  group('THEKAA Delivered Order ("Khaana aa gaya!") Screen Suite', () {
+    testWidgets('Renders all authoritative elements matching reference screenshot', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DeliveredOrderScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Top Header
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+
+      // Delivery Success Illustration
+      expect(find.text('Enjoy every last grain.'), findsOneWidget);
+      expect(find.text('DELIVERED · 01 NOV 2026 · 2:12 PM'), findsOneWidget);
+
+      // Order Summary Card
+      expect(find.text('Shadab Biryani'), findsOneWidget);
+      expect(find.text('Gachibowli · #THK84291'), findsOneWidget);
+      expect(find.text('1 × Chicken Dum Biryani · ₹280'), findsOneWidget);
+      expect(find.text('1 × Mutton Biryani · ₹340'), findsOneWidget);
+      expect(find.text('2 items · No coins redeemed'), findsOneWidget);
+      expect(find.text('₹655'), findsOneWidget);
+
+      // Experience Rating Card
+      expect(find.text('How was your experience?'), findsOneWidget);
+      expect(find.byIcon(Icons.star_outline_rounded), findsNWidgets(5));
+
+      // Review Reminder Card
+      expect(find.text('Your honest review matters'), findsOneWidget);
+      expect(
+        find.text('Share on THEKAA SOCIALS. Coins stay pending until publication and eligibility checks; credited once.'),
+        findsOneWidget,
+      );
+
+      // Action Buttons
+      expect(find.text('Share food review'), findsOneWidget);
+      expect(find.byIcon(Icons.edit_outlined), findsOneWidget);
+      expect(find.text('Reorder'), findsOneWidget);
+      expect(find.text('Order details'), findsOneWidget);
+
+      // Bottom Navigation Bar with Orders active (index 3)
+      final bottomNavFinder = find.byType(ThekaaBottomNavBar);
+      expect(bottomNavFinder, findsOneWidget);
+      final bottomNav = tester.widget<ThekaaBottomNavBar>(bottomNavFinder);
+      expect(bottomNav.currentIndex, equals(3));
+    });
+
+    testWidgets('Dynamic screen reusability with Chutneys, Work address, and TKC coins applied', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final chutneysOrder = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.chutneys,
+        deliveryAddress: DeliveryAddress.defaultWork,
+        payableAmount: 430.0,
+        coinsRedeemed: 20,
+        customOrderId: '#THK62180',
+        deliveredDate: '02 Nov 2026',
+        deliveredTime: '3:00 PM',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DeliveredOrderScreen(order: chutneysOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.text('Enjoy every last grain.'), findsOneWidget);
+      expect(find.text('DELIVERED · 02 NOV 2026 · 3:00 PM'), findsOneWidget);
+      expect(find.text('Chutneys'), findsOneWidget);
+      expect(find.text('Gachibowli · #THK62180'), findsOneWidget);
+      expect(find.text('2 × Ghee Karam Dosa · ₹180'), findsOneWidget);
+      expect(find.text('1 × Filter Coffee · ₹70'), findsOneWidget);
+      expect(find.text('3 items · 20 TKC redeemed'), findsOneWidget);
+      expect(find.text('₹430'), findsOneWidget);
+    });
+
+    testWidgets('Interactive star rating updates selection state and invokes onRatingChanged callback', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      int selectedRating = 0;
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DeliveredOrderScreen(
+            order: order,
+            onRatingChanged: (r) => selectedRating = r,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.star_outline_rounded), findsNWidgets(5));
+      expect(find.byIcon(Icons.star_rounded), findsNothing);
+
+      // Tap 4th star
+      final starIcons = find.byIcon(Icons.star_outline_rounded);
+      await tester.tap(starIcons.at(3));
+      await tester.pumpAndSettle();
+
+      expect(selectedRating, equals(4));
+      expect(find.byIcon(Icons.star_rounded), findsNWidgets(4));
+      expect(find.byIcon(Icons.star_outline_rounded), findsOneWidget);
+    });
+
+    testWidgets('Interactive callbacks work (onBack, onShareReview, onReorder, onOrderDetails, onNavTap)', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      bool backed = false;
+      bool reviewShared = false;
+      bool reordered = false;
+      bool detailsViewed = false;
+      int? tappedIndex;
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DeliveredOrderScreen(
+            order: order,
+            onBack: () => backed = true,
+            onShareReview: () => reviewShared = true,
+            onReorder: () => reordered = true,
+            onOrderDetails: () => detailsViewed = true,
+            onNavTap: (i) => tappedIndex = i,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Back
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+      expect(backed, isTrue);
+
+      // Tap Share food review
+      await tester.tap(find.text('Share food review'));
+      await tester.pumpAndSettle();
+      expect(reviewShared, isTrue);
+
+      // Tap Reorder
+      await tester.tap(find.text('Reorder'));
+      await tester.pumpAndSettle();
+      expect(reordered, isTrue);
+
+      // Tap Order details
+      await tester.tap(find.text('Order details'));
+      await tester.pumpAndSettle();
+      expect(detailsViewed, isTrue);
+
+      // Tap Explore tab (index 1)
+      await tester.tap(find.text('Explore'));
+      await tester.pumpAndSettle();
+      expect(tappedIndex, equals(1));
+    });
+
+    testWidgets('End-to-End: DeliveredOrderScreen -> Order details navigates to OrderDetailsScreen and back', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DeliveredOrderScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.byType(OrderDetailsScreen), findsNothing);
+
+      // Tap Order details button
+      await tester.tap(find.text('Order details'));
+      await tester.pumpAndSettle();
+
+      // Should navigate to OrderDetailsScreen for the SAME order
+      expect(find.byType(OrderDetailsScreen), findsOneWidget);
+      expect(find.text('Order confirmed'), findsOneWidget);
+      expect(find.text('#THK84291'), findsWidgets);
+      expect(find.text('Shadab Biryani'), findsWidgets);
+
+      // Tap Back on OrderDetailsScreen
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on DeliveredOrderScreen
+      expect(find.byType(DeliveredOrderScreen), findsOneWidget);
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.byType(OrderDetailsScreen), findsNothing);
+    });
+
+    testWidgets('End-to-End: DeliveredOrderScreen -> Reorder navigates to CartScreen and back', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: DeliveredOrderScreen(order: order),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.byType(CartScreen), findsNothing);
+
+      // Tap Reorder button
+      await tester.tap(find.text('Reorder'));
+      await tester.pumpAndSettle();
+
+      // Should navigate to CartScreen with items populated
+      expect(find.byType(CartScreen), findsOneWidget);
+      expect(find.text('Shadab Biryani'), findsWidgets);
+      expect(find.textContaining('Proceed to checkout'), findsOneWidget);
+
+      // Tap Back on CartScreen
+      await tester.tap(find.byIcon(Icons.chevron_left_rounded));
+      await tester.pumpAndSettle();
+
+      // Back on DeliveredOrderScreen
+      expect(find.byType(DeliveredOrderScreen), findsOneWidget);
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.byType(CartScreen), findsNothing);
+    });
+
+    testWidgets('Delivery State Transition: OnTheWayScreen with OrderTrackingStatus.delivered displays DeliveredOrderScreen', (tester) async {
+      tester.view.physicalSize = const Size(800, 1000);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final deliveredOrder = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+        trackingStatus: OrderTrackingStatus.delivered,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: OnTheWayScreen(order: deliveredOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Directly renders DeliveredOrderScreen as the final state
+      expect(find.byType(DeliveredOrderScreen), findsOneWidget);
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+      expect(find.text('Enjoy every last grain.'), findsOneWidget);
+      expect(find.text('DELIVERED · 01 NOV 2026 · 2:12 PM'), findsOneWidget);
     });
   });
 }

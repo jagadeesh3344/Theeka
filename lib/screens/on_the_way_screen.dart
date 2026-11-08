@@ -10,6 +10,7 @@ import '../widgets/rider_profile_card.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
 import '../widgets/view_order_details_button.dart';
 import 'order_details_screen.dart';
+import 'delivered_order_screen.dart';
 
 class OnTheWayScreen extends StatelessWidget {
   final OrderConfirmation order;
@@ -17,6 +18,7 @@ class OnTheWayScreen extends StatelessWidget {
   final VoidCallback? onViewOrderDetails;
   final VoidCallback? onCallRider;
   final VoidCallback? onChatRider;
+  final VoidCallback? onOrderDelivered;
   final ValueChanged<int>? onNavTap;
 
   const OnTheWayScreen({
@@ -26,6 +28,7 @@ class OnTheWayScreen extends StatelessWidget {
     this.onViewOrderDetails,
     this.onCallRider,
     this.onChatRider,
+    this.onOrderDelivered,
     this.onNavTap,
   });
 
@@ -53,8 +56,34 @@ class OnTheWayScreen extends StatelessWidget {
     );
   }
 
+  void deliverOrder(BuildContext context) {
+    if (onOrderDelivered != null) {
+      onOrderDelivered!();
+      return;
+    }
+    final deliveredOrder = order.copyWith(
+      trackingStatus: OrderTrackingStatus.delivered,
+    );
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => DeliveredOrderScreen(
+          order: deliveredOrder,
+          onBack: () => Navigator.of(context).pop(),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (order.trackingStatus == OrderTrackingStatus.delivered) {
+      return DeliveredOrderScreen(
+        order: order,
+        onBack: onBack,
+        onNavTap: onNavTap,
+      );
+    }
+
     final rider = order.rider;
 
     return Scaffold(
@@ -122,3 +151,4 @@ class OnTheWayScreen extends StatelessWidget {
     );
   }
 }
+

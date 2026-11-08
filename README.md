@@ -139,6 +139,25 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
     - Fixed bottom action button: `View order details` returning to `OrderDetailsScreen`.
     - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
 
+15. **Delivered Order Screen ("Khaana aa gaya!")**
+    - Final delivery state triggered when backend order status reaches `DELIVERED`.
+    - Top navigation header: `< Khaana aa gaya!` in Playfair Display serif (`#49362B`).
+    - Centered circular Dabba container badge with bottom-right green checkmark badge.
+    - Warm cursive message: *"Enjoy every last grain."* in Caveat (`#A75B2E`).
+    - Authoritative delivered timestamp stamp: `DELIVERED · 01 NOV 2026 · 2:12 PM` in bold forest green.
+    - Delivered order summary card:
+      - Restaurant icon, name (`Shadab Biryani`), and locality with Order ID (`Gachibowli · #THK84291`).
+      - Itemized dish rows with quantities and prices (`1 × Chicken Dum Biryani · ₹280`, `1 × Mutton Biryani · ₹340`).
+      - Item count, coin redemption state (`2 items · No coins redeemed`), and final paid amount (`₹655`).
+    - Experience Rating Card ("How was your experience?"):
+      - 5 interactive star ratings (`☆ ☆ ☆ ☆ ☆`) allowing customers to review their dining experience.
+    - Review Reminder Card ("Your honest review matters"):
+      - Clock icon, reminder title, and THEKAA SOCIALS explanation on pending credit publication.
+    - Action Buttons:
+      - Full-width primary terracotta button: **`Share food review`** with edit pencil icon.
+      - Dual secondary outlined buttons: **`Reorder`** (opens Cart with preserved items) and **`Order details`** (opens Order Details for the same order).
+    - Fixed 5-destination bottom navigation bar with **Orders tab active (`currentIndex: 3`)**.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -185,7 +204,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 57 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 64 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -204,6 +223,7 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Order Tracking Screen Suite` (5 tests)
 - ✅ `THEKAA Rider & Delivery Details ("Meet your bhaiyya") Screen Suite` (5 tests)
 - ✅ `THEKAA Live Location / On The Way Screen Suite` (4 tests)
+- ✅ `THEKAA Delivered Order ("Khaana aa gaya!") Screen Suite` (7 tests)
 
 ---
 
