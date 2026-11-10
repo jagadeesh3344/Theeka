@@ -182,6 +182,67 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
       - `Help & Support` (`Your account, your control`, shield icon).
     - Fixed 5-destination bottom navigation bar with **Profile tab active (`currentIndex: 4`)** and single source of truth (no duplicate navigation bars).
 
+17. **The Person Behind the Plate (`EditProfileScreen`)**
+    - Account details & personal information screen matching reference screenshot.
+    - Top header: `< The person behind the plate` in Playfair Display serif with subtitle *"Keep your personal details up to date."*
+    - Interactive user data fields:
+      - `Full name` (e.g. `hero M.`)
+      - Row: `Phone · sample` (`+91 00000 00000`) & `Date of birth` (`18 Aug 1998`)
+      - `Email · sample` (`hero@example.com`)
+      - `Gender (optional)` (`Prefer not to say`)
+    - Action cards:
+      - `Edit post` with pencil icon and chevron.
+      - `Log out` with logout icon, subtitle *"You can sign back in anytime"*, and chevron.
+    - Privacy disclaimer: *"Your contact information is private, not part of your public food journal."*
+    - Full-width terracotta action button: **`Edit details`** with edit icon.
+    - Single bottom navigation bar with **Profile tab active (`currentIndex: 4`)**.
+
+18. **Manage Posts (`ManagePostsScreen`)**
+    - Post management and lifecycle control screen.
+    - Top header: `< Manage posts` in Playfair Display serif with subtitle *"Archive or delete your previous posts."*
+    - Search field: `Search your posts` with search and tune/filter icons.
+    - Segmented status tabs: `Published · 48` (active terracotta) and `Archived · 3` (cream).
+    - Published post cards with dish thumbnails, titles (*"That unmistakable dum aroma."*, *"A Sunday well spent."*), restaurant metadata, and dual actions: **`Archive`** and **`Delete`**.
+    - `RECENTLY ARCHIVED` section with `View all 3`, dish thumbnail, *"A biryani trail"*, **`Restore`** action, and subtitle *"Hidden from your profile. Restore anytime."*
+    - Post control footer: *"Your posts, your control"*, *"Archiving is reversible. Deleting is permanent."*, *"You’ll be asked to confirm before deleting."*
+    - Single bottom navigation bar with **Profile tab active (`currentIndex: 4`)**.
+
+19. **Your Familiar Places (`SavedAddressesScreen`)**
+    - Saved delivery addresses management screen.
+    - Top header: `< Your familiar places` in Playfair Display serif.
+    - Stylized THEKAA map canvas at top with Gachibowli, Botanical garden, Old Mumbai Highway, and GPS locator button.
+    - Saved address cards:
+      - `Home` (`Default` terracotta pill badge, `Flat 302, Vertex Heights, Gachibowli, Hyderabad 500032`, **`Edit`**, **`Delete`**).
+      - `Work` (`THEKAA Studio, Financial District, Nanakramguda, Hyderabad 500032`, **`Edit`**, **`Delete`**, **`Set as default`**).
+      - `Other` (`Family home, Kondapur, Hyderabad 500084`, **`Edit`**, **`Delete`**, **`Set as default`**).
+    - Full-width terracotta action button: **`Add a new address`** with plus icon.
+    - Single bottom navigation bar with **Profile tab active (`currentIndex: 4`)**.
+
+20. **Food, Your Way (`FoodPreferencesScreen`)**
+    - Taste and dietary customization screen.
+    - Top header: `< Food, your way` in Playfair Display serif with subtitle *"A few things about your taste help us tailor discovery. You can change these anytime."*
+    - Section *"What's on your plate?"*:
+      - 3 interactive selectable cards: **`Veg`**, **`Non-veg`** (selected checkmark with warm terracotta border), and **`Eggetarian`**.
+    - Section *"Cuisines you love"*:
+      - Multi-select interactive filter chips: `Biryani`, `South Indian`, `North Indian`, `Chinese`, `Continental`, `Desserts`.
+    - Input fields for `Allergies` (`Peanuts`, *"Add any ingredients you need to avoid"*) and `Dietary restrictions (optional)` (`Less spicy, where available`).
+    - Allergy warning card: *"Preferences aren't an allergy guarantee"* with allergen disclaimer.
+    - Full-width terracotta action button: **`Save preferences`** with checkmark icon.
+    - Single bottom navigation bar with **Profile tab active (`currentIndex: 4`)**.
+
+21. **Bhaiyya, We’re Listening (`HelpSupportScreen`)**
+    - Help and customer support center.
+    - Top header: `< Bhaiyya, we’re listening` in Playfair Display serif.
+    - Search field: `Search help articles` with search and tune icons.
+    - 3 contact option cards: **`Chat`**, **`Call`**, and **`Email`** with design preview notice.
+    - Section *"What can we help with?"* with 4 interactive categories:
+      - `An order` (`#THK84291 · Shadab Biryani` with recent order tracking)
+      - `Payments`
+      - `Account & privacy`
+      - `THEKAA Coins`
+    - Section *"Common questions"* with `All FAQs` link and expandable FAQ card (*"When do review coins arrive?"*).
+    - Single bottom navigation bar with **Profile tab active (`currentIndex: 4`)**.
+
 ---
 
 ## 🛠️ Tech Stack & Architecture
@@ -198,6 +259,9 @@ An editorial, premium Hyderabad food discovery and ordering mobile application b
   - `OrderConfirmation` & `OrderItemDetail`
   - `Rider`
   - `UserProfile`
+  - `UserPost`
+  - `FoodPreference`
+  - `FaqItem` & `SupportRecentOrder`
 
 ---
 
@@ -229,7 +293,7 @@ flutter run
 
 ## 🧪 Automated Test Suite
 
-THEKAA includes a comprehensive test suite covering 68 widget and end-to-end integration scenarios:
+THEKAA includes a comprehensive test suite covering 78 widget and end-to-end integration scenarios:
 
 ```bash
 flutter test test/thekaa_test.dart
@@ -250,6 +314,11 @@ flutter test test/thekaa_test.dart
 - ✅ `THEKAA Live Location / On The Way Screen Suite` (4 tests)
 - ✅ `THEKAA Delivered Order ("Khaana aa gaya!") Screen Suite` (7 tests)
 - ✅ `THEKAA Profile / My THEKAA Screen Suite` (4 tests)
+- ✅ `Page 1: The Person Behind the Plate (EditProfileScreen) Suite` (2 tests)
+- ✅ `Page 2: Manage Posts (ManagePostsScreen) Suite` (2 tests)
+- ✅ `Page 3: Your Familiar Places (SavedAddressesScreen) Suite` (2 tests)
+- ✅ `Page 4: Food, Your Way (FoodPreferencesScreen) Suite` (2 tests)
+- ✅ `Page 5: Bhaiyya, We’re Listening (HelpSupportScreen) Suite` (2 tests)
 
 ---
 

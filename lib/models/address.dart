@@ -133,6 +133,48 @@ class DeliveryAddress {
     mapCoordinates: Offset(0.50, 0.50),
   );
 
+  static const DeliveryAddress savedHome = DeliveryAddress(
+    id: 'addr_saved_home',
+    type: AddressType.home,
+    flatBuilding: 'Flat 302, Vertex Heights',
+    locality: 'Gachibowli',
+    streetArea: 'Vertex Heights, Gachibowli',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    pincode: '500032',
+    isDefault: true,
+  );
+
+  static const DeliveryAddress savedWork = DeliveryAddress(
+    id: 'addr_saved_work',
+    type: AddressType.work,
+    flatBuilding: 'THEKAA Studio, Financial District',
+    locality: 'Nanakramguda',
+    streetArea: 'Financial District, Nanakramguda',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    pincode: '500032',
+    isDefault: false,
+  );
+
+  static const DeliveryAddress savedOther = DeliveryAddress(
+    id: 'addr_saved_other',
+    type: AddressType.other,
+    flatBuilding: 'Family home',
+    locality: 'Kondapur',
+    streetArea: 'Kondapur',
+    city: 'Hyderabad',
+    state: 'Telangana',
+    pincode: '500084',
+    isDefault: false,
+  );
+
+  static const List<DeliveryAddress> savedProfileAddresses = [
+    savedHome,
+    savedWork,
+    savedOther,
+  ];
+
   static const List<DeliveryAddress> defaultAddresses = [
     defaultHome,
     defaultWork,

@@ -8,6 +8,11 @@ class UserProfile {
   final int coinBalance;
   final String coinsSubtitle;
   final String? avatarImagePath;
+  final String phone;
+  final String dateOfBirth;
+  final String email;
+  final String gender;
+  final int archivedPostsCount;
 
   const UserProfile({
     this.name = 'hero M.',
@@ -19,6 +24,11 @@ class UserProfile {
     this.coinBalance = 1200,
     this.coinsSubtitle = 'Your good taste, appreciated',
     this.avatarImagePath = 'assets/images/user_avatar.png',
+    this.phone = '+91 00000 00000',
+    this.dateOfBirth = '18 Aug 1998',
+    this.email = 'hero@example.com',
+    this.gender = 'Prefer not to say',
+    this.archivedPostsCount = 3,
   });
 
   String get formattedCoins {
@@ -39,6 +49,11 @@ class UserProfile {
     int? coinBalance,
     String? coinsSubtitle,
     String? avatarImagePath,
+    String? phone,
+    String? dateOfBirth,
+    String? email,
+    String? gender,
+    int? archivedPostsCount,
   }) {
     return UserProfile(
       name: name ?? this.name,
@@ -50,9 +65,13 @@ class UserProfile {
       coinBalance: coinBalance ?? this.coinBalance,
       coinsSubtitle: coinsSubtitle ?? this.coinsSubtitle,
       avatarImagePath: avatarImagePath ?? this.avatarImagePath,
+      phone: phone ?? this.phone,
+      dateOfBirth: dateOfBirth ?? this.dateOfBirth,
+      email: email ?? this.email,
+      gender: gender ?? this.gender,
+      archivedPostsCount: archivedPostsCount ?? this.archivedPostsCount,
     );
   }
 
   static const defaultProfile = UserProfile();
 }
-

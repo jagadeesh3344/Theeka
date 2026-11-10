@@ -22,6 +22,13 @@ import 'package:thekaa/screens/rider_details_screen.dart';
 import 'package:thekaa/screens/on_the_way_screen.dart';
 import 'package:thekaa/screens/delivered_order_screen.dart';
 import 'package:thekaa/screens/profile_screen.dart';
+import 'package:thekaa/screens/edit_profile_screen.dart';
+import 'package:thekaa/screens/manage_posts_screen.dart';
+import 'package:thekaa/screens/saved_addresses_screen.dart';
+import 'package:thekaa/screens/food_preferences_screen.dart';
+import 'package:thekaa/screens/help_support_screen.dart';
+import 'package:thekaa/models/user_post.dart';
+import 'package:thekaa/models/food_preference.dart';
 import 'package:thekaa/models/user_profile.dart';
 import 'package:thekaa/widgets/profile_header.dart';
 import 'package:thekaa/widgets/profile_avatar_section.dart';
@@ -2550,6 +2557,452 @@ void main() {
 
       // Verify EXACTLY ONE bottom navigation bar exists across the entire app hierarchy
       expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+  });
+
+  group('Page 1: The Person Behind the Plate (EditProfileScreen) Suite', () {
+    testWidgets('EditProfileScreen renders all visual elements matching reference screenshot', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: EditProfileScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header & Subtitle
+      expect(find.text('The person behind the plate'), findsOneWidget);
+      expect(find.text('Keep your personal details up to date.'), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_back_ios_new_rounded), findsOneWidget);
+
+      // Fields
+      expect(find.text('Full name'), findsOneWidget);
+      expect(find.text('hero M.'), findsOneWidget);
+      expect(find.text('Phone · sample'), findsOneWidget);
+      expect(find.text('+91 00000 00000'), findsOneWidget);
+      expect(find.text('Date of birth'), findsOneWidget);
+      expect(find.text('18 Aug 1998'), findsOneWidget);
+      expect(find.text('Email · sample'), findsOneWidget);
+      expect(find.text('hero@example.com'), findsOneWidget);
+      expect(find.text('Gender (optional)'), findsOneWidget);
+      expect(find.text('Prefer not to say'), findsOneWidget);
+
+      // Action rows
+      expect(find.text('Edit post'), findsOneWidget);
+      expect(find.text('Log out'), findsOneWidget);
+      expect(find.text('You can sign back in anytime'), findsOneWidget);
+
+      // Privacy note & button
+      expect(
+        find.text('Your contact information is private, not part of your public food journal.'),
+        findsOneWidget,
+      );
+      expect(find.text('Edit details'), findsOneWidget);
+      expect(find.byIcon(Icons.edit_outlined), findsWidgets);
+
+      // Exactly ONE bottom navigation bar with Profile active
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+
+    testWidgets('EditProfileScreen renders dynamic user profile and handles interactions', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      bool backTapped = false;
+      bool editPostTapped = false;
+      bool logoutTapped = false;
+      bool editDetailsTapped = false;
+
+      const custom = UserProfile(
+        name: 'Fatima Begum',
+        phone: '+91 98765 43210',
+        dateOfBirth: '12 Jan 1995',
+        email: 'fatima@hyderabad.in',
+        gender: 'Female',
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: EditProfileScreen(
+            profile: custom,
+            onBack: () => backTapped = true,
+            onEditPost: () => editPostTapped = true,
+            onLogout: () => logoutTapped = true,
+            onEditDetails: () => editDetailsTapped = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Fatima Begum'), findsOneWidget);
+      expect(find.text('+91 98765 43210'), findsOneWidget);
+      expect(find.text('12 Jan 1995'), findsOneWidget);
+      expect(find.text('fatima@hyderabad.in'), findsOneWidget);
+      expect(find.text('Female'), findsOneWidget);
+
+      await tester.tap(find.byIcon(Icons.arrow_back_ios_new_rounded));
+      expect(backTapped, isTrue);
+
+      await tester.tap(find.text('Edit post'));
+      expect(editPostTapped, isTrue);
+
+      await tester.tap(find.text('Log out'));
+      expect(logoutTapped, isTrue);
+
+      await tester.tap(find.text('Edit details'));
+      expect(editDetailsTapped, isTrue);
+    });
+  });
+
+  group('Page 2: Manage Posts (ManagePostsScreen) Suite', () {
+    testWidgets('ManagePostsScreen renders all visual elements matching reference screenshot', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: ManagePostsScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header & Subtitle
+      expect(find.text('Manage posts'), findsOneWidget);
+      expect(find.text('Archive or delete your previous posts.'), findsOneWidget);
+
+      // Search & status tabs
+      expect(find.text('Search your posts'), findsOneWidget);
+      expect(find.text('Published · 48'), findsOneWidget);
+      expect(find.text('Archived · 3'), findsOneWidget);
+
+      // Published post cards
+      expect(find.text('That unmistakable dum aroma.'), findsOneWidget);
+      expect(find.text('Shadab Biryani · Gachibowli'), findsOneWidget);
+      expect(find.text('30 Oct 2026 · Public'), findsOneWidget);
+
+      expect(find.text('A Sunday well spent.'), findsOneWidget);
+      expect(find.text('Shadab Biryani · Hyderabad'), findsOneWidget);
+      expect(find.text('25 Oct 2026 · Public'), findsOneWidget);
+
+      // Action buttons
+      expect(find.text('Archive'), findsNWidgets(2));
+      expect(find.text('Delete'), findsNWidgets(2));
+
+      // Recently archived section
+      expect(find.text('RECENTLY ARCHIVED'), findsOneWidget);
+      expect(find.text('View all 3'), findsOneWidget);
+      expect(find.text('A biryani trail'), findsOneWidget);
+      expect(find.text('Restore'), findsOneWidget);
+      expect(find.text('Hidden from your profile. Restore anytime.'), findsOneWidget);
+
+      // Control info
+      expect(find.text('Your posts, your control'), findsOneWidget);
+      expect(find.text('Archiving is reversible. Deleting is permanent.'), findsOneWidget);
+      expect(find.text('You’ll be asked to confirm before deleting.'), findsOneWidget);
+
+      // Single bottom navigation bar
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+
+    testWidgets('ManagePostsScreen handles tab toggle, archive, delete, and restore actions', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      UserPost? archivedPost;
+      UserPost? deletedPost;
+      UserPost? restoredPost;
+      bool viewAllTapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: ManagePostsScreen(
+            onArchivePost: (p) => archivedPost = p,
+            onDeletePost: (p) => deletedPost = p,
+            onRestorePost: (p) => restoredPost = p,
+            onViewAllArchived: () => viewAllTapped = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Archive').first);
+      expect(archivedPost?.title, 'That unmistakable dum aroma.');
+
+      await tester.tap(find.text('Delete').first);
+      expect(deletedPost?.title, 'That unmistakable dum aroma.');
+
+      await tester.tap(find.text('Restore').first);
+      expect(restoredPost?.title, 'A biryani trail');
+
+      await tester.tap(find.text('View all 3'));
+      expect(viewAllTapped, isTrue);
+
+      // Switch to Archived tab
+      await tester.tap(find.text('Archived · 3'));
+      await tester.pumpAndSettle();
+    });
+  });
+
+  group('Page 3: Your Familiar Places (SavedAddressesScreen) Suite', () {
+    testWidgets('SavedAddressesScreen renders map and saved address cards matching reference', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: SavedAddressesScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header
+      expect(find.text('Your familiar places'), findsOneWidget);
+
+      // Map canvas & GPS button
+      expect(find.byIcon(Icons.gps_fixed), findsOneWidget);
+
+      // Address cards (note: 'Home' also appears once in bottom nav)
+      expect(find.text('Home'), findsNWidgets(2));
+      expect(find.text('Default'), findsOneWidget);
+      expect(find.textContaining('Flat 302, Vertex Heights, Gachibowli'), findsOneWidget);
+
+      expect(find.text('Work'), findsOneWidget);
+      expect(find.textContaining('THEKAA Studio, Financial District'), findsOneWidget);
+
+      expect(find.text('Other'), findsOneWidget);
+      expect(find.textContaining('Family home, Kondapur'), findsOneWidget);
+
+      // Actions
+      expect(find.text('Edit'), findsNWidgets(3));
+      expect(find.text('Delete'), findsNWidgets(3));
+      expect(find.text('Set as default'), findsNWidgets(2));
+
+      // Add address button
+      expect(find.text('Add a new address'), findsOneWidget);
+      expect(find.byIcon(Icons.add), findsOneWidget);
+
+      // Single bottom navigation bar
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+
+    testWidgets('SavedAddressesScreen handles add, edit, delete, and set default actions', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      bool addTapped = false;
+      DeliveryAddress? editedAddr;
+      DeliveryAddress? deletedAddr;
+      DeliveryAddress? defaultAddr;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: SavedAddressesScreen(
+            onAddAddress: () => addTapped = true,
+            onEditAddress: (a) => editedAddr = a,
+            onDeleteAddress: (a) => deletedAddr = a,
+            onSetDefaultAddress: (a) => defaultAddr = a,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Add a new address'));
+      expect(addTapped, isTrue);
+
+      await tester.tap(find.text('Edit').first);
+      expect(editedAddr?.type, AddressType.home);
+
+      await tester.tap(find.text('Delete').first);
+      expect(deletedAddr?.type, AddressType.home);
+
+      await tester.tap(find.text('Set as default').first);
+      expect(defaultAddr?.type, AddressType.work);
+    });
+  });
+
+  group('Page 4: Food, Your Way (FoodPreferencesScreen) Suite', () {
+    testWidgets('FoodPreferencesScreen renders dietary options, cuisines, and warning matching reference', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: FoodPreferencesScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header & Subtitle
+      expect(find.text('Food, your way'), findsOneWidget);
+      expect(
+        find.text('A few things about your taste help us tailor discovery. You can change these anytime.'),
+        findsOneWidget,
+      );
+
+      // Section: What's on your plate?
+      expect(find.text("What's on your plate?"), findsOneWidget);
+      expect(find.text('Veg'), findsOneWidget);
+      expect(find.text('Non-veg'), findsOneWidget);
+      expect(find.text('Eggetarian'), findsOneWidget);
+
+      // Section: Cuisines you love
+      expect(find.text('Cuisines you love'), findsOneWidget);
+      expect(find.text('Biryani'), findsOneWidget);
+      expect(find.text('South Indian'), findsOneWidget);
+      expect(find.text('North Indian'), findsOneWidget);
+      expect(find.text('Chinese'), findsOneWidget);
+      expect(find.text('Continental'), findsOneWidget);
+      expect(find.text('Desserts'), findsOneWidget);
+
+      // Allergies & Restrictions
+      expect(find.text('Allergies'), findsOneWidget);
+      expect(find.text('Peanuts'), findsOneWidget);
+      expect(find.text('Add any ingredients you need to avoid'), findsOneWidget);
+      expect(find.text('Dietary restrictions (optional)'), findsOneWidget);
+      expect(find.text('Less spicy, where available'), findsOneWidget);
+
+      // Warning card
+      expect(find.text("Preferences aren't an allergy guarantee"), findsOneWidget);
+      expect(
+        find.text('Always check ingredients with the restaurant. Kitchens may handle common allergens.'),
+        findsOneWidget,
+      );
+
+      // Save button
+      expect(find.text('Save preferences'), findsOneWidget);
+      expect(find.byIcon(Icons.check), findsWidgets);
+
+      // Single bottom navigation bar
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+
+    testWidgets('FoodPreferencesScreen toggles dietary options and invokes save preferences', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      FoodPreference? saved;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: FoodPreferencesScreen(
+            onSavePreferences: (pref) => saved = pref,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Veg
+      await tester.tap(find.text('Veg'));
+      await tester.pumpAndSettle();
+
+      // Tap Chinese cuisine
+      await tester.tap(find.text('Chinese'));
+      await tester.pumpAndSettle();
+
+      // Tap Save preferences
+      await tester.tap(find.text('Save preferences'));
+      expect(saved?.dietaryType, DietaryType.veg);
+      expect(saved?.selectedCuisines.contains('Chinese'), isTrue);
+    });
+  });
+
+  group('Page 5: Bhaiyya, We’re Listening (HelpSupportScreen) Suite', () {
+    testWidgets('HelpSupportScreen renders contact options, support categories, and FAQ matching reference', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: HelpSupportScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Header
+      expect(find.text('Bhaiyya, we’re listening'), findsOneWidget);
+
+      // Search bar
+      expect(find.text('Search help articles'), findsOneWidget);
+
+      // Contact options
+      expect(find.text('Chat'), findsOneWidget);
+      expect(find.text('Call'), findsOneWidget);
+      expect(find.text('Email'), findsOneWidget);
+      expect(
+        find.text('Contact options are shown as a design preview. Availability is confirmed when you request support.'),
+        findsOneWidget,
+      );
+
+      // Categories
+      expect(find.text('What can we help with?'), findsOneWidget);
+      expect(find.text('An order'), findsOneWidget);
+      expect(find.text('#THK84291 · Shadab Biryani'), findsOneWidget);
+      expect(find.text('Payments'), findsOneWidget);
+      expect(find.text('Account & privacy'), findsOneWidget);
+      expect(find.text('THEKAA Coins'), findsOneWidget);
+
+      // FAQ section
+      expect(find.text('Common questions'), findsOneWidget);
+      expect(find.text('All FAQs'), findsOneWidget);
+      expect(find.text('When do review coins arrive?'), findsOneWidget);
+      expect(
+        find.text('After publication and eligibility checks. Each eligible review is rewarded once — never for likes.'),
+        findsOneWidget,
+      );
+
+      // Single bottom navigation bar
+      expect(find.byType(ThekaaBottomNavBar), findsOneWidget);
+    });
+
+    testWidgets('HelpSupportScreen handles contact and category taps', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      bool chatTapped = false;
+      bool callTapped = false;
+      bool emailTapped = false;
+      bool orderCategoryTapped = false;
+      bool allFaqsTapped = false;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: HelpSupportScreen(
+            onChatTap: () => chatTapped = true,
+            onCallTap: () => callTapped = true,
+            onEmailTap: () => emailTapped = true,
+            onOrderCategoryTap: () => orderCategoryTapped = true,
+            onAllFaqsTap: () => allFaqsTapped = true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.text('Chat'));
+      expect(chatTapped, isTrue);
+
+      await tester.tap(find.text('Call'));
+      expect(callTapped, isTrue);
+
+      await tester.tap(find.text('Email'));
+      expect(emailTapped, isTrue);
+
+      await tester.tap(find.text('An order'));
+      expect(orderCategoryTapped, isTrue);
+
+      await tester.tap(find.text('All FAQs'));
+      expect(allFaqsTapped, isTrue);
     });
   });
 }
