@@ -53,3 +53,4 @@ class FoodPreference {
 
   static const defaultPreference = FoodPreference();
 }
+

@@ -25,3 +25,4 @@ class SupportRecentOrder {
 
   String get summary => '$orderId · $restaurant';
 }
+

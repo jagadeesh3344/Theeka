@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/food_preference.dart';
+import '../services/profile_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../theme/thekaa_typography.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
@@ -31,12 +32,13 @@ class _FoodPreferencesScreenState extends State<FoodPreferencesScreen> {
   @override
   void initState() {
     super.initState();
-    _dietaryType = widget.initialPreference.dietaryType;
-    _selectedCuisines = Set.from(widget.initialPreference.selectedCuisines);
-    _allergiesController =
-        TextEditingController(text: widget.initialPreference.allergies);
-    _restrictionsController =
-        TextEditingController(text: widget.initialPreference.dietaryRestrictions);
+    final pref = widget.initialPreference == FoodPreference.defaultPreference
+        ? ProfileRepository.instance.foodPreference
+        : widget.initialPreference;
+    _dietaryType = pref.dietaryType;
+    _selectedCuisines = Set.from(pref.selectedCuisines);
+    _allergiesController = TextEditingController(text: pref.allergies);
+    _restrictionsController = TextEditingController(text: pref.dietaryRestrictions);
   }
 
   @override
@@ -63,7 +65,17 @@ class _FoodPreferencesScreenState extends State<FoodPreferencesScreen> {
       allergies: _allergiesController.text.trim(),
       dietaryRestrictions: _restrictionsController.text.trim(),
     );
+    ProfileRepository.instance.updateFoodPreference(updated);
     widget.onSavePreferences?.call(updated);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Preferences saved'),
+        duration: Duration(seconds: 2),
+        backgroundColor: ThekaaColors.terracotta,
+      ),
+    );
+    Navigator.of(context).maybePop();
   }
 
   Widget _buildDietaryCard({
@@ -463,3 +475,4 @@ class _FoodPreferencesScreenState extends State<FoodPreferencesScreen> {
     );
   }
 }
+

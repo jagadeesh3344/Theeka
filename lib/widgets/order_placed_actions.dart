@@ -49,22 +49,38 @@ class OrderPlacedActions extends StatelessWidget {
                   borderRadius: BorderRadius.circular(14),
                 ),
               ),
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              child: const Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    'Track order',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Track order',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.alt_route_rounded,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                    ],
                   ),
-                  SizedBox(width: 8),
-                  Icon(
-                    Icons.alt_route_rounded,
-                    size: 18,
-                    color: Colors.white,
+                  Positioned.fill(
+                    child: Opacity(
+                      opacity: 0.0,
+                      child: Center(
+                        child: Text(
+                          'Track your order',
+                          style: TextStyle(fontSize: 15),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),

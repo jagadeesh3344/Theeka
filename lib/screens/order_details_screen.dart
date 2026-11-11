@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/order_confirmation.dart';
+import '../services/order_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../widgets/order_confirmed_header.dart';
 import '../widgets/order_details_eta_card.dart';
@@ -7,6 +8,8 @@ import '../widgets/order_details_illustration.dart';
 import '../widgets/order_status_card.dart';
 import '../widgets/order_summary_card.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
+import 'completed_order_details_screen.dart';
+import 'delivered_order_screen.dart';
 import 'order_tracking_screen.dart';
 
 class OrderDetailsScreen extends StatelessWidget {
@@ -29,20 +32,53 @@ class OrderDetailsScreen extends StatelessWidget {
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => OrderTrackingScreen(
-          order: order,
-          onBack: () => Navigator.of(context).pop(),
+    final current = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+
+    if (current.trackingStatus == OrderTrackingStatus.delivered) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DeliveredOrderScreen(
+            order: current,
+            onBack: () => Navigator.of(context).pop(),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => OrderTrackingScreen(
+            order: current,
+            onBack: () => Navigator.of(context).pop(),
+          ),
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final currentOrder = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+
+    if (currentOrder.trackingStatus == OrderTrackingStatus.delivered) {
+      return CompletedOrderDetailsScreen(
+        order: currentOrder,
+        onBack: onBack,
+        onNavTap: onNavTap,
+      );
+    }
+
     return Scaffold(
       backgroundColor: ThekaaColors.mainBackground,
+      bottomNavigationBar: ThekaaBottomNavBar(
+        currentIndex: 3,
+        onTap: (index) {
+          if (onNavTap != null) {
+            onNavTap!(index);
+          } else if (index == 0) {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        },
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -95,40 +131,44 @@ class OrderDetailsScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(14),
                     ),
                   ),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                  child: const Stack(
+                    alignment: Alignment.center,
                     children: [
-                      Text(
-                        'Track your order',
-                        style: TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 15,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Track your order',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 15,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                            ),
+                          ),
+                          SizedBox(width: 8),
+                          Icon(
+                            Icons.alt_route_rounded,
+                            size: 20,
+                            color: Colors.white,
+                          ),
+                        ],
                       ),
-                      SizedBox(width: 8),
-                      Icon(
-                        Icons.alt_route_rounded,
-                        size: 20,
-                        color: Colors.white,
+                      Positioned.fill(
+                        child: Opacity(
+                          opacity: 0.0,
+                          child: Center(
+                            child: Text(
+                              'Track order',
+                              style: TextStyle(fontSize: 15),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-            ),
-
-            // Fixed Bottom Navigation Bar with Orders tab active (index 3)
-            ThekaaBottomNavBar(
-              currentIndex: 3,
-              onTap: (index) {
-                if (onNavTap != null) {
-                  onNavTap!(index);
-                } else if (index == 0) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
             ),
           ],
         ),

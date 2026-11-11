@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/order_confirmation.dart';
+import '../services/order_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../widgets/delivering_to_address_card.dart';
 import '../widgets/delivery_eta_distance_card.dart';
@@ -46,10 +47,12 @@ class OnTheWayScreen extends StatelessWidget {
       return;
     }
 
+    final current = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => OrderDetailsScreen(
-          order: order,
+          order: current,
           onBack: () => Navigator.of(context).pop(),
         ),
       ),
@@ -61,9 +64,13 @@ class OnTheWayScreen extends StatelessWidget {
       onOrderDelivered!();
       return;
     }
-    final deliveredOrder = order.copyWith(
+    final current = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+    final deliveredOrder = current.copyWith(
       trackingStatus: OrderTrackingStatus.delivered,
+      deliveredDate: current.deliveredDate ?? current.date,
+      deliveredTime: current.deliveredTime ?? current.arrivalAroundTime,
     );
+    OrderRepository.instance.addOrUpdateOrder(deliveredOrder);
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
         builder: (context) => DeliveredOrderScreen(
@@ -76,18 +83,33 @@ class OnTheWayScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (order.trackingStatus == OrderTrackingStatus.delivered) {
+    final repoOrder = OrderRepository.instance.getOrderById(order.orderId);
+    final currentOrder = repoOrder != null && repoOrder.trackingStatus.index > order.trackingStatus.index
+        ? repoOrder
+        : order;
+
+    if (currentOrder.trackingStatus == OrderTrackingStatus.delivered) {
       return DeliveredOrderScreen(
-        order: order,
+        order: currentOrder,
         onBack: onBack,
         onNavTap: onNavTap,
       );
     }
 
-    final rider = order.rider;
+    final rider = currentOrder.rider;
 
     return Scaffold(
       backgroundColor: ThekaaColors.mainBackground,
+      bottomNavigationBar: ThekaaBottomNavBar(
+        currentIndex: 3,
+        onTap: (index) {
+          if (onNavTap != null) {
+            onNavTap!(index);
+          } else if (index == 0) {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        },
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -105,13 +127,13 @@ class OnTheWayScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Subheader: "#THK84291 · OUT FOR DELIVERY · 2:00 PM"
-                    OnTheWayMetaRow(order: order),
+                    OnTheWayMetaRow(order: currentOrder),
 
                     // Large Live Delivery Map
-                    LiveDeliveryMap(order: order),
+                    LiveDeliveryMap(order: currentOrder),
 
                     // ETA / Distance Card: 12 min (Arriving around 2:12 PM) · 2.8 km (remaining)
-                    DeliveryEtaDistanceCard(order: order),
+                    DeliveryEtaDistanceCard(order: currentOrder),
 
                     // Rider Profile Card (Avatar + Ravi K. + 4.8 + Shield + Call & Chat buttons)
                     RiderProfileCard(
@@ -121,7 +143,7 @@ class OnTheWayScreen extends StatelessWidget {
                     ),
 
                     // Delivering to Home Card (Address)
-                    DeliveringToAddressCard(order: order),
+                    DeliveringToAddressCard(order: currentOrder),
 
                     const SizedBox(height: 10),
                   ],
@@ -132,18 +154,6 @@ class OnTheWayScreen extends StatelessWidget {
             // Fixed "View order details" Button
             ViewOrderDetailsButton(
               onTap: () => _handleViewOrderDetails(context),
-            ),
-
-            // Fixed Bottom Navigation Bar with Orders tab active (index 3)
-            ThekaaBottomNavBar(
-              currentIndex: 3,
-              onTap: (index) {
-                if (onNavTap != null) {
-                  onNavTap!(index);
-                } else if (index == 0) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
             ),
           ],
         ),

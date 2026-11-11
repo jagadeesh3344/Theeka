@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/order_confirmation.dart';
+import '../services/order_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../widgets/rider_delivery_eta_row.dart';
 import '../widgets/rider_delivery_map.dart';
@@ -48,10 +49,12 @@ class RiderDetailsScreen extends StatelessWidget {
       return;
     }
 
+    final current = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => OrderDetailsScreen(
-          order: order,
+          order: current,
           onBack: () => Navigator.of(context).pop(),
         ),
       ),
@@ -64,10 +67,12 @@ class RiderDetailsScreen extends StatelessWidget {
       return;
     }
 
+    final current = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => OnTheWayScreen(
-          order: order,
+          order: current,
           onBack: () => Navigator.of(context).pop(),
         ),
       ),
@@ -76,10 +81,24 @@ class RiderDetailsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final rider = order.rider;
+    final repoOrder = OrderRepository.instance.getOrderById(order.orderId);
+    final currentOrder = repoOrder != null && repoOrder.trackingStatus.index > order.trackingStatus.index
+        ? repoOrder
+        : order;
+    final rider = currentOrder.rider;
 
     return Scaffold(
       backgroundColor: ThekaaColors.mainBackground,
+      bottomNavigationBar: ThekaaBottomNavBar(
+        currentIndex: 3,
+        onTap: (index) {
+          if (onNavTap != null) {
+            onNavTap!(index);
+          } else if (index == 0) {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        },
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -97,7 +116,7 @@ class RiderDetailsScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Order ID · RIDER ASSIGNED · 1:53 PM
-                    RiderOrderMetaRow(order: order),
+                    RiderOrderMetaRow(order: currentOrder),
 
                     // Rider Profile Card (Avatar + Ravi K. + 4.8 + Shield + Call & Chat buttons)
                     RiderProfileCard(
@@ -113,14 +132,14 @@ class RiderDetailsScreen extends StatelessWidget {
                     RiderStatusMessageCard(rider: rider),
 
                     // Pickup and Drop-off Address Card
-                    RiderPickupDropoffCard(order: order),
+                    RiderPickupDropoffCard(order: currentOrder),
 
                     // Estimated Arrival Row
-                    RiderDeliveryEtaRow(order: order),
+                    RiderDeliveryEtaRow(order: currentOrder),
 
                     // Contained Map Preview Section (Tappable to open "On the way to you")
                     RiderDeliveryMap(
-                      order: order,
+                      order: currentOrder,
                       onTap: () => _handleMapTap(context),
                     ),
 
@@ -133,18 +152,6 @@ class RiderDetailsScreen extends StatelessWidget {
             // Fixed "View order details" Button
             ViewOrderDetailsButton(
               onTap: () => _handleViewOrderDetails(context),
-            ),
-
-            // Fixed Bottom Navigation Bar with Orders tab active (index 3)
-            ThekaaBottomNavBar(
-              currentIndex: 3,
-              onTap: (index) {
-                if (onNavTap != null) {
-                  onNavTap!(index);
-                } else if (index == 0) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
             ),
           ],
         ),

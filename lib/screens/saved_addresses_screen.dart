@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/address.dart';
+import '../services/profile_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../theme/thekaa_typography.dart';
 import '../widgets/delivery_map_painter.dart';
@@ -35,7 +36,206 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
   @override
   void initState() {
     super.initState();
-    _addresses = List.from(widget.addresses);
+    // Initialize from ProfileRepository if defaults are passed, or use passed list
+    if (identical(widget.addresses, DeliveryAddress.savedProfileAddresses)) {
+      _addresses = List.from(ProfileRepository.instance.savedAddresses);
+    } else {
+      _addresses = List.from(widget.addresses);
+    }
+  }
+
+  void _handleDeleteAddress(DeliveryAddress address) {
+    setState(() {
+      _addresses.removeWhere((a) => a.id == address.id);
+    });
+    ProfileRepository.instance.deleteAddress(address.id);
+    widget.onDeleteAddress?.call(address);
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Address removed'),
+        duration: Duration(seconds: 2),
+        backgroundColor: ThekaaColors.terracotta,
+      ),
+    );
+  }
+
+  Widget _buildAddressInputField({
+    required String label,
+    required TextEditingController controller,
+    TextInputType keyboardType = TextInputType.text,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFAF6EE),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFEADBCE), width: 1.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF8F7D6D),
+            ),
+          ),
+          const SizedBox(height: 2),
+          TextField(
+            controller: controller,
+            keyboardType: keyboardType,
+            style: const TextStyle(
+              fontFamily: 'Inter',
+              fontSize: 13.5,
+              fontWeight: FontWeight.w600,
+              color: ThekaaColors.primaryText,
+            ),
+            decoration: const InputDecoration(
+              isDense: true,
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _handleEditAddress(DeliveryAddress address) {
+    if (widget.onEditAddress != null) {
+      widget.onEditAddress!(address);
+      return;
+    }
+    final flatController = TextEditingController(text: address.flatBuilding);
+    final localityController = TextEditingController(text: address.locality);
+    final cityController = TextEditingController(text: address.city);
+    final pinController = TextEditingController(text: address.pincode);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFFDF8),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Edit ${address.typeLabel} address',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      onPressed: () => Navigator.pop(sheetContext),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 14),
+                _buildAddressInputField(
+                  label: 'House / Flat / Building',
+                  controller: flatController,
+                ),
+                const SizedBox(height: 12),
+                _buildAddressInputField(
+                  label: 'Locality / Area',
+                  controller: localityController,
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildAddressInputField(
+                        label: 'City',
+                        controller: cityController,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildAddressInputField(
+                        label: 'Pincode',
+                        controller: pinController,
+                        keyboardType: TextInputType.number,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      final updated = address.copyWith(
+                        flatBuilding: flatController.text.trim(),
+                        locality: localityController.text.trim(),
+                        city: cityController.text.trim(),
+                        pincode: pinController.text.trim(),
+                      );
+                      setState(() {
+                        final idx = _addresses.indexWhere((a) => a.id == address.id);
+                        if (idx >= 0) {
+                          _addresses[idx] = updated;
+                        }
+                      });
+                      ProfileRepository.instance.updateAddress(updated);
+                      widget.onEditAddress?.call(updated);
+                      Navigator.pop(sheetContext);
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Address updated'),
+                          duration: Duration(seconds: 2),
+                          backgroundColor: ThekaaColors.terracotta,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ThekaaColors.terracotta,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      'Save',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontFamily: 'Inter',
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   IconData _iconForType(AddressType type) {
@@ -132,7 +332,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
           Row(
             children: [
               InkWell(
-                onTap: () => widget.onEditAddress?.call(address),
+                onTap: () => _handleEditAddress(address),
                 child: Text(
                   'Edit',
                   style: ThekaaTypography.captionText.copyWith(
@@ -144,7 +344,7 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
               ),
               const SizedBox(width: 18),
               InkWell(
-                onTap: () => widget.onDeleteAddress?.call(address),
+                onTap: () => _handleDeleteAddress(address),
                 child: Text(
                   'Delete',
                   style: ThekaaTypography.deliveryInfo.copyWith(
@@ -334,3 +534,4 @@ class _SavedAddressesScreenState extends State<SavedAddressesScreen> {
     );
   }
 }
+

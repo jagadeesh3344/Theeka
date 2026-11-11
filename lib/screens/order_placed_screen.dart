@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import '../models/order_confirmation.dart';
+import '../services/order_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../widgets/delivery_estimate_card.dart';
 import '../widgets/order_placed_actions.dart';
 import '../widgets/order_success_header.dart';
 import '../widgets/order_success_illustration.dart';
 import '../widgets/order_summary_card.dart';
+import 'delivered_order_screen.dart';
 import 'order_details_screen.dart';
 import 'order_tracking_screen.dart';
 
@@ -29,24 +31,37 @@ class OrderPlacedScreen extends StatelessWidget {
       return;
     }
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => OrderTrackingScreen(
-          order: order,
-          onBack: () => Navigator.of(context).pop(),
-          onViewOrderDetails: () {
-            Navigator.of(context).push(
-              MaterialPageRoute(
-                builder: (context) => OrderDetailsScreen(
-                  order: order,
-                  onBack: () => Navigator.of(context).pop(),
-                ),
-              ),
-            );
-          },
+    final current = OrderRepository.instance.getOrderById(order.orderId) ?? order;
+
+    if (current.trackingStatus == OrderTrackingStatus.delivered) {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => DeliveredOrderScreen(
+            order: current,
+            onBack: () => Navigator.of(context).pop(),
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => OrderTrackingScreen(
+            order: current,
+            onBack: () => Navigator.of(context).pop(),
+            onViewOrderDetails: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => OrderDetailsScreen(
+                    order: current,
+                    onBack: () => Navigator.of(context).pop(),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
   }
 
   void _handleViewOrderDetails(BuildContext context) {

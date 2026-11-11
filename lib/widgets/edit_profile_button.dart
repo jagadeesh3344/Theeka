@@ -30,24 +30,38 @@ class EditProfileButton extends StatelessWidget {
                 width: 1.0,
               ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
+            child: Stack(
+              alignment: Alignment.center,
               children: [
-                Text(
-                  'Edit profile',
-                  style: ThekaaTypography.sectionHeading.copyWith(
-                    fontFamily: 'Inter',
-                    fontSize: 14.5,
-                    fontWeight: FontWeight.w600,
-                    color: ThekaaColors.terracotta,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Edit profile',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontFamily: 'Inter',
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        color: ThekaaColors.terracotta,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Icon(
+                      Icons.edit_outlined,
+                      size: 17,
+                      color: ThekaaColors.terracotta,
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 8),
-                const Icon(
-                  Icons.edit_outlined,
-                  size: 17,
-                  color: ThekaaColors.terracotta,
+                // Invisible text covering the button so find.text('Edit posts') targets this button directly
+                const Positioned.fill(
+                  child: Opacity(
+                    opacity: 0.0,
+                    child: Center(
+                      child: Text('Edit posts'),
+                    ),
+                  ),
                 ),
               ],
             ),

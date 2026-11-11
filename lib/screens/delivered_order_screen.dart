@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/order_confirmation.dart';
 import '../models/restaurant.dart';
+import '../models/social_models.dart';
 import '../theme/thekaa_colors.dart';
 import '../widgets/delivered_action_buttons.dart';
 import '../widgets/delivered_experience_rating_card.dart';
@@ -10,7 +11,8 @@ import '../widgets/delivered_success_illustration.dart';
 import '../widgets/order_summary_card.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
 import 'cart_screen.dart';
-import 'order_details_screen.dart';
+import 'completed_order_details_screen.dart';
+import 'tell_food_story_screen.dart';
 
 class DeliveredOrderScreen extends StatefulWidget {
   final OrderConfirmation order;
@@ -68,14 +70,25 @@ class _DeliveredOrderScreenState extends State<DeliveredOrderScreen> {
       return;
     }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text(
-          'Review submitted! Social credits pending publication.',
-          style: TextStyle(fontFamily: 'Inter'),
+    final eligibleOrder = EligibleOrder.fromOrderConfirmation(widget.order);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => TellFoodStoryScreen(
+          eligibleOrders: [eligibleOrder],
+          post: SocialPost.defaultPost.copyWith(
+            restaurantName: widget.order.restaurantName,
+            restaurantLocality: widget.order.restaurantArea,
+            orderId: widget.order.orderId,
+            dishName: widget.order.items.isNotEmpty
+                ? widget.order.items.first.name
+                : 'Chicken Dum Biryani',
+            dishPrice: widget.order.items.isNotEmpty
+                ? widget.order.items.first.price
+                : 280.0,
+            rating: _rating > 0 ? _rating.toDouble() : 4.0,
+          ),
+          onBack: () => Navigator.of(context).pop(),
         ),
-        backgroundColor: ThekaaColors.terracotta,
-        duration: Duration(seconds: 2),
       ),
     );
   }
@@ -119,7 +132,7 @@ class _DeliveredOrderScreenState extends State<DeliveredOrderScreen> {
 
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (context) => OrderDetailsScreen(
+        builder: (context) => CompletedOrderDetailsScreen(
           order: widget.order,
           onBack: () => Navigator.of(context).pop(),
         ),
@@ -131,6 +144,16 @@ class _DeliveredOrderScreenState extends State<DeliveredOrderScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: ThekaaColors.mainBackground,
+      bottomNavigationBar: ThekaaBottomNavBar(
+        currentIndex: 3,
+        onTap: (index) {
+          if (widget.onNavTap != null) {
+            widget.onNavTap!(index);
+          } else if (index == 0) {
+            Navigator.of(context).popUntil((route) => route.isFirst);
+          }
+        },
+      ),
       body: SafeArea(
         bottom: false,
         child: Column(
@@ -173,18 +196,6 @@ class _DeliveredOrderScreenState extends State<DeliveredOrderScreen> {
                   ],
                 ),
               ),
-            ),
-
-            // Fixed Bottom Navigation Bar with Orders tab active (index 3)
-            ThekaaBottomNavBar(
-              currentIndex: 3,
-              onTap: (index) {
-                if (widget.onNavTap != null) {
-                  widget.onNavTap!(index);
-                } else if (index == 0) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
             ),
           ],
         ),

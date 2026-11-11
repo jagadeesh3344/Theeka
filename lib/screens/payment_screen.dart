@@ -3,6 +3,7 @@ import '../models/address.dart';
 import '../models/order_confirmation.dart';
 import '../models/payment_method.dart';
 import '../models/restaurant.dart';
+import '../services/order_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../widgets/confirm_pay_button.dart';
 import '../widgets/other_payment_methods_card.dart';
@@ -112,6 +113,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
       coinsRedeemed: widget.coinsRedeemed,
       paymentMethod: _selectedMethod,
     );
+
+    OrderRepository.instance.addOrUpdateOrder(orderConfirmation);
 
     if (widget.onPaymentSuccess != null) {
       widget.onPaymentSuccess!();

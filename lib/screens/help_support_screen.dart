@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import '../models/order_confirmation.dart';
 import '../models/support_info.dart';
+import '../services/order_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../theme/thekaa_typography.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
+import 'thekaa_coins_screen.dart';
 
 class HelpSupportScreen extends StatefulWidget {
   final SupportRecentOrder recentOrder;
@@ -46,6 +49,251 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  void _handleChat(BuildContext context) {
+    widget.onChatTap?.call();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('We are currently unavailable.'),
+        duration: Duration(seconds: 2),
+        backgroundColor: ThekaaColors.terracotta,
+      ),
+    );
+  }
+
+  void _handleOrderCategory(BuildContext context) {
+    if (widget.onOrderCategoryTap != null) {
+      widget.onOrderCategoryTap!();
+      return;
+    }
+    _showOrderHelpSheet(context);
+  }
+
+  void _showOrderHelpSheet(BuildContext context) {
+    final order = OrderRepository.instance.orders.isNotEmpty
+        ? OrderRepository.instance.orders.first
+        : OrderConfirmation.sampleShadabOrder;
+    final issueController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (sheetContext) {
+        return Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(sheetContext).viewInsets.bottom,
+          ),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Color(0xFFFFFDF8),
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Order help',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded, size: 20),
+                      onPressed: () => Navigator.pop(sheetContext),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+
+                // Selected order card showing Restaurant, Order ID, and Status
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(14),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF6EE),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: const Color(0xFFEADBCE), width: 1.0),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF3ECE0),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: const Icon(
+                          Icons.receipt_long_outlined,
+                          size: 22,
+                          color: ThekaaColors.terracotta,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              order.restaurantName,
+                              style: ThekaaTypography.sectionHeading.copyWith(
+                                fontFamily: 'Inter',
+                                fontSize: 14.5,
+                                fontWeight: FontWeight.bold,
+                                color: ThekaaColors.primaryText,
+                              ),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              '${order.orderId} · ${order.statusDescription}',
+                              style: ThekaaTypography.deliveryInfo.copyWith(
+                                fontSize: 12,
+                                color: ThekaaColors.secondaryText,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Question heading
+                Text(
+                  'What help do you need with this order?',
+                  style: ThekaaTypography.sectionHeading.copyWith(
+                    fontFamily: 'Inter',
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: ThekaaColors.primaryText,
+                  ),
+                ),
+                const SizedBox(height: 10),
+
+                // Label and typing box
+                Text(
+                  'What help do you need?',
+                  style: ThekaaTypography.captionText.copyWith(
+                    fontSize: 12,
+                    color: ThekaaColors.secondaryText,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFAF6EE),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFFEADBCE), width: 1.0),
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  child: TextField(
+                    controller: issueController,
+                    maxLines: 3,
+                    style: ThekaaTypography.searchInput.copyWith(fontSize: 13.5),
+                    decoration: const InputDecoration(
+                      hintText: 'Type your issue...',
+                      hintStyle: TextStyle(
+                        fontFamily: 'Inter',
+                        fontSize: 13,
+                        color: Color(0xFF9E8E80),
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.zero,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Submit button
+                SizedBox(
+                  width: double.infinity,
+                  height: 48,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(sheetContext);
+                      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Help request submitted. We’ll get back to you shortly.'),
+                          duration: Duration(seconds: 3),
+                          backgroundColor: ThekaaColors.terracotta,
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ThekaaColors.terracotta,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    child: Text(
+                      'Submit issue',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontFamily: 'Inter',
+                        fontSize: 14.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _handlePayments(BuildContext context) {
+    widget.onPaymentsCategoryTap?.call();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Payment help: UPI and card refunds are processed within 2–4 business days.'),
+        duration: Duration(seconds: 3),
+        backgroundColor: ThekaaColors.terracotta,
+      ),
+    );
+  }
+
+  void _handleAccount(BuildContext context) {
+    widget.onAccountCategoryTap?.call();
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Account help: You can update your profile details under Profile → Account details.'),
+        duration: Duration(seconds: 3),
+        backgroundColor: ThekaaColors.terracotta,
+      ),
+    );
+  }
+
+  void _handleCoins(BuildContext context) {
+    if (widget.onCoinsCategoryTap != null) {
+      widget.onCoinsCategoryTap!();
+      return;
+    }
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ThekaaCoinsScreen(
+          onBack: () => Navigator.of(context).maybePop(),
+        ),
+      ),
+    );
   }
 
   Widget _buildContactOption({
@@ -266,7 +514,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                   _buildContactOption(
                     icon: Icons.chat_bubble_outline_rounded,
                     label: 'Chat',
-                    onTap: widget.onChatTap,
+                    onTap: () => _handleChat(context),
                   ),
                   const SizedBox(width: 10),
                   _buildContactOption(
@@ -322,7 +570,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                       icon: Icons.receipt_long_outlined,
                       title: 'An order',
                       subtitle: widget.recentOrder.summary,
-                      onTap: widget.onOrderCategoryTap,
+                      onTap: () => _handleOrderCategory(context),
                       isFirst: true,
                     ),
                     const Divider(
@@ -335,7 +583,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     _buildCategoryRow(
                       icon: Icons.credit_card_outlined,
                       title: 'Payments',
-                      onTap: widget.onPaymentsCategoryTap,
+                      onTap: () => _handlePayments(context),
                     ),
                     const Divider(
                       height: 1,
@@ -347,7 +595,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     _buildCategoryRow(
                       icon: Icons.person_outline_rounded,
                       title: 'Account & privacy',
-                      onTap: widget.onAccountCategoryTap,
+                      onTap: () => _handleAccount(context),
                     ),
                     const Divider(
                       height: 1,
@@ -359,7 +607,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
                     _buildCategoryRow(
                       icon: Icons.toll_outlined,
                       title: 'THEKAA Coins',
-                      onTap: widget.onCoinsCategoryTap,
+                      onTap: () => _handleCoins(context),
                       isLast: true,
                     ),
                   ],
@@ -459,3 +707,4 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
     );
   }
 }
+

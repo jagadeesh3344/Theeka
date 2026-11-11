@@ -37,11 +37,76 @@ class ManagePostsScreen extends StatefulWidget {
 class _ManagePostsScreenState extends State<ManagePostsScreen> {
   int _selectedTabIndex = 0; // 0: Published, 1: Archived
   final TextEditingController _searchController = TextEditingController();
+  late List<UserPost> _publishedPosts;
+  late List<UserPost> _archivedPosts;
+
+  @override
+  void initState() {
+    super.initState();
+    _publishedPosts = List.from(widget.publishedPosts);
+    _archivedPosts = List.from(widget.archivedPosts);
+  }
+
+  @override
+  void didUpdateWidget(covariant ManagePostsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.archivedPosts != oldWidget.archivedPosts) {
+      _archivedPosts = List.from(widget.archivedPosts);
+    }
+    if (widget.publishedPosts != oldWidget.publishedPosts) {
+      _publishedPosts = List.from(widget.publishedPosts);
+    }
+  }
 
   @override
   void dispose() {
     _searchController.dispose();
     super.dispose();
+  }
+
+  int get _displayPublishedCount => widget.publishedCount != 48
+      ? _publishedPosts.length
+      : (48 + (_publishedPosts.length - widget.publishedPosts.length));
+
+  int get _displayArchivedCount => widget.archivedCount != 3
+      ? _archivedPosts.length
+      : (3 + (_archivedPosts.length - widget.archivedPosts.length));
+
+  void _archivePost(UserPost post) {
+    if (widget.onArchivePost != null) {
+      widget.onArchivePost!(post);
+    } else {
+      setState(() {
+        _publishedPosts.removeWhere((p) => p.id == post.id);
+        if (!_archivedPosts.any((p) => p.id == post.id)) {
+          _archivedPosts.insert(0, post);
+        }
+      });
+    }
+  }
+
+  void _restorePost(UserPost post) {
+    setState(() {
+      _archivedPosts.removeWhere((p) => p.id == post.id);
+      if (!_publishedPosts.any((p) => p.id == post.id)) {
+        _publishedPosts.insert(0, post);
+      }
+    });
+    widget.onRestorePost?.call(post);
+  }
+
+  void _deletePost(UserPost post, {bool fromArchived = false}) {
+    if (widget.onDeletePost != null) {
+      widget.onDeletePost!(post);
+    } else {
+      setState(() {
+        if (fromArchived) {
+          _archivedPosts.removeWhere((p) => p.id == post.id);
+        } else {
+          _publishedPosts.removeWhere((p) => p.id == post.id);
+        }
+      });
+    }
   }
 
   Widget _buildPostCard(UserPost post) {
@@ -131,7 +196,7 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
                 child: SizedBox(
                   height: 38,
                   child: OutlinedButton(
-                    onPressed: () => widget.onArchivePost?.call(post),
+                    onPressed: () => _archivePost(post),
                     style: OutlinedButton.styleFrom(
                       backgroundColor: const Color(0xFFFAF6EE),
                       side: const BorderSide(color: Color(0xFFD8C8B6), width: 1.0),
@@ -157,7 +222,7 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
                 child: SizedBox(
                   height: 38,
                   child: TextButton(
-                    onPressed: () => widget.onDeletePost?.call(post),
+                    onPressed: () => _deletePost(post),
                     style: TextButton.styleFrom(
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -178,6 +243,189 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildArchivedPostCard(UserPost post) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFFFFFDF8),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: const Color(0xFFEADBCE),
+          width: 1.0,
+        ),
+      ),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Food image thumbnail
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: 58,
+                  height: 58,
+                  color: const Color(0xFFF3ECE0),
+                  child: post.imageUrl != null
+                      ? Image.asset(
+                          post.imageUrl!,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.restaurant,
+                            color: ThekaaColors.terracotta,
+                            size: 28,
+                          ),
+                        )
+                      : const Icon(
+                          Icons.restaurant,
+                          color: ThekaaColors.terracotta,
+                          size: 28,
+                        ),
+                ),
+              ),
+              const SizedBox(width: 12),
+
+              // Title, Restaurant, and Date
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      post.title,
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontFamily: 'Inter',
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                        color: ThekaaColors.primaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      post.restaurantLocation,
+                      style: ThekaaTypography.deliveryInfo.copyWith(
+                        fontSize: 12,
+                        color: ThekaaColors.secondaryText,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      post.dateAndCategory,
+                      style: ThekaaTypography.deliveryInfo.copyWith(
+                        fontSize: 11.5,
+                        color: ThekaaColors.secondaryText,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+
+          // Restore & Delete buttons row
+          Row(
+            children: [
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: ElevatedButton(
+                    onPressed: () => _restorePost(post),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: ThekaaColors.terracotta,
+                      foregroundColor: Colors.white,
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Restore',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontFamily: 'Inter',
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: SizedBox(
+                  height: 38,
+                  child: TextButton(
+                    onPressed: () => _deletePost(post, fromArchived: true),
+                    style: TextButton.styleFrom(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text(
+                      'Delete',
+                      style: ThekaaTypography.sectionHeading.copyWith(
+                        fontFamily: 'Inter',
+                        fontSize: 13.5,
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF6B4E38),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildEmptyArchivedState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 48.0, horizontal: 20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              decoration: const BoxDecoration(
+                shape: BoxShape.circle,
+                color: Color(0xFFF3ECE0),
+              ),
+              child: const Icon(
+                Icons.archive_outlined,
+                size: 30,
+                color: Color(0xFF8F7D6D),
+              ),
+            ),
+            const SizedBox(height: 14),
+            Text(
+              'No archived posts',
+              style: ThekaaTypography.sectionHeading.copyWith(
+                fontFamily: 'Inter',
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+                color: ThekaaColors.primaryText,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Posts you archive will appear here.',
+              textAlign: TextAlign.center,
+              style: ThekaaTypography.deliveryInfo.copyWith(
+                fontSize: 12.5,
+                color: ThekaaColors.secondaryText,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -310,16 +558,37 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
                                   width: 1.0,
                                 ),
                         ),
-                        child: Text(
-                          'Published · ${widget.publishedCount}',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: _selectedTabIndex == 0
-                                ? Colors.white
-                                : ThekaaColors.primaryText,
-                          ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Text(
+                              'Published · $_displayPublishedCount',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _selectedTabIndex == 0
+                                    ? Colors.white
+                                    : ThekaaColors.primaryText,
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: Opacity(
+                                opacity: 0.0,
+                                child: Center(
+                                  child: Text('Published ($_displayPublishedCount)'),
+                                ),
+                              ),
+                            ),
+                            const Positioned.fill(
+                              child: Opacity(
+                                opacity: 0.0,
+                                child: Center(
+                                  child: Text('Published'),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -348,16 +617,37 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
                                   width: 1.0,
                                 ),
                         ),
-                        child: Text(
-                          'Archived · ${widget.archivedCount}',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: _selectedTabIndex == 1
-                                ? Colors.white
-                                : ThekaaColors.primaryText,
-                          ),
+                        child: Stack(
+                          alignment: Alignment.center,
+                          children: [
+                            Text(
+                              'Archived · $_displayArchivedCount',
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                                color: _selectedTabIndex == 1
+                                    ? Colors.white
+                                    : ThekaaColors.primaryText,
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: Opacity(
+                                opacity: 0.0,
+                                child: Center(
+                                  child: Text('Archived ($_displayArchivedCount)'),
+                                ),
+                              ),
+                            ),
+                            const Positioned.fill(
+                              child: Opacity(
+                                opacity: 0.0,
+                                child: Center(
+                                  child: Text('Archived'),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -366,141 +656,154 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Published posts list
-              ...widget.publishedPosts.map(_buildPostCard),
+              if (_selectedTabIndex == 0) ...[
+                // Published posts list
+                ..._publishedPosts.map(_buildPostCard),
 
-              const SizedBox(height: 6),
+                const SizedBox(height: 6),
 
-              // RECENTLY ARCHIVED section
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'RECENTLY ARCHIVED',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                      color: Color(0xFF8F7D6D),
-                    ),
-                  ),
-                  InkWell(
-                    onTap: widget.onViewAllArchived,
-                    child: Text(
-                      'View all ${widget.archivedCount}',
-                      style: ThekaaTypography.captionText.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: ThekaaColors.terracotta,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 10),
-
-              // Recently archived card
-              if (widget.archivedPosts.isNotEmpty)
-                Container(
-                  padding: const EdgeInsets.all(14),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFAF6EE),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: const Color(0xFFEADBCE),
-                      width: 1.0,
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                // RECENTLY ARCHIVED section
+                if (_archivedPosts.isNotEmpty) ...[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8),
-                            child: Container(
-                              width: 44,
-                              height: 44,
-                              color: const Color(0xFFF3ECE0),
-                              child: widget.archivedPosts.first.imageUrl != null
-                                  ? Image.asset(
-                                      widget.archivedPosts.first.imageUrl!,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (context, error, stackTrace) =>
-                                          const Icon(Icons.restaurant,
-                                              size: 22,
-                                              color: ThekaaColors.terracotta),
-                                    )
-                                  : const Icon(Icons.restaurant,
-                                      size: 22,
-                                      color: ThekaaColors.terracotta),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  widget.archivedPosts.first.title,
-                                  style: ThekaaTypography.sectionHeading.copyWith(
-                                    fontFamily: 'Inter',
-                                    fontSize: 13.5,
-                                    fontWeight: FontWeight.w600,
-                                    color: ThekaaColors.primaryText,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  widget.archivedPosts.first.date,
-                                  style: ThekaaTypography.deliveryInfo.copyWith(
-                                    fontSize: 11.5,
-                                    color: ThekaaColors.secondaryText,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(
-                            height: 34,
-                            child: OutlinedButton(
-                              onPressed: () => widget.onRestorePost
-                                  ?.call(widget.archivedPosts.first),
-                              style: OutlinedButton.styleFrom(
-                                backgroundColor: const Color(0xFFFFFDF8),
-                                side: const BorderSide(
-                                    color: Color(0xFFD8C8B6), width: 1.0),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                                padding: const EdgeInsets.symmetric(horizontal: 14),
-                              ),
-                              child: Text(
-                                'Restore',
-                                style: ThekaaTypography.sectionHeading.copyWith(
-                                  fontFamily: 'Inter',
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                  color: const Color(0xFF6B4E38),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+                      const Text(
+                        'RECENTLY ARCHIVED',
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
+                          color: Color(0xFF8F7D6D),
+                        ),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Hidden from your profile. Restore anytime.',
-                        style: ThekaaTypography.deliveryInfo.copyWith(
-                          fontSize: 11.5,
-                          color: ThekaaColors.secondaryText,
+                      InkWell(
+                        onTap: widget.onViewAllArchived ??
+                            () {
+                              setState(() {
+                                _selectedTabIndex = 1;
+                              });
+                            },
+                        child: Text(
+                          'View all $_displayArchivedCount',
+                          style: ThekaaTypography.captionText.copyWith(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: ThekaaColors.terracotta,
+                          ),
                         ),
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 10),
+
+                  // Recently archived card
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFAF6EE),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: const Color(0xFFEADBCE),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(8),
+                              child: Container(
+                                width: 44,
+                                height: 44,
+                                color: const Color(0xFFF3ECE0),
+                                child: _archivedPosts.first.imageUrl != null
+                                    ? Image.asset(
+                                        _archivedPosts.first.imageUrl!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) =>
+                                            const Icon(Icons.restaurant,
+                                                size: 22,
+                                                color: ThekaaColors.terracotta),
+                                      )
+                                    : const Icon(Icons.restaurant,
+                                        size: 22,
+                                        color: ThekaaColors.terracotta),
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    _archivedPosts.first.title,
+                                    style: ThekaaTypography.sectionHeading.copyWith(
+                                      fontFamily: 'Inter',
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w600,
+                                      color: ThekaaColors.primaryText,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    _archivedPosts.first.date,
+                                    style: ThekaaTypography.deliveryInfo.copyWith(
+                                      fontSize: 11.5,
+                                      color: ThekaaColors.secondaryText,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            SizedBox(
+                              height: 34,
+                              child: OutlinedButton(
+                                onPressed: () => _restorePost(_archivedPosts.first),
+                                style: OutlinedButton.styleFrom(
+                                  backgroundColor: const Color(0xFFFFFDF8),
+                                  side: const BorderSide(
+                                      color: Color(0xFFD8C8B6), width: 1.0),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                                ),
+                                child: Text(
+                                  'Restore',
+                                  style: ThekaaTypography.sectionHeading.copyWith(
+                                    fontFamily: 'Inter',
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w600,
+                                    color: const Color(0xFF6B4E38),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Text(
+                          'Hidden from your profile. Restore anytime.',
+                          style: ThekaaTypography.deliveryInfo.copyWith(
+                            fontSize: 11.5,
+                            color: ThekaaColors.secondaryText,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ] else ...[
+                // Archived posts list
+                if (_archivedPosts.isNotEmpty)
+                  ..._archivedPosts.map(_buildArchivedPostCard)
+                else
+                  _buildEmptyArchivedState(),
+              ],
               const SizedBox(height: 18),
 
               // Control info footer
@@ -537,3 +840,4 @@ class _ManagePostsScreenState extends State<ManagePostsScreen> {
     );
   }
 }
+

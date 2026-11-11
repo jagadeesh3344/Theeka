@@ -7,20 +7,40 @@ class UserPost {
   final String category;
   final String? imageUrl;
   final bool isArchived;
+  final String? _customRestaurantLocation;
+  final String? _customDateAndCategory;
 
   const UserPost({
     required this.id,
     required this.title,
-    required this.restaurant,
-    required this.location,
-    required this.date,
+    this.restaurant = '',
+    this.location = '',
+    this.date = '',
     this.category = 'Public',
     this.imageUrl,
     this.isArchived = false,
-  });
+    String? restaurantLocation,
+    String? dateAndCategory,
+  })  : _customRestaurantLocation = restaurantLocation,
+        _customDateAndCategory = dateAndCategory;
 
-  String get restaurantLocation => '$restaurant · $location';
-  String get dateAndCategory => '$date · $category';
+  String get restaurantLocation {
+    if (_customRestaurantLocation != null && _customRestaurantLocation!.isNotEmpty) {
+      return _customRestaurantLocation!;
+    }
+    if (restaurant.isEmpty) return location;
+    if (location.isEmpty) return restaurant;
+    return '$restaurant · $location';
+  }
+
+  String get dateAndCategory {
+    if (_customDateAndCategory != null && _customDateAndCategory!.isNotEmpty) {
+      return _customDateAndCategory!;
+    }
+    if (date.isEmpty) return category;
+    if (category.isEmpty) return date;
+    return '$date · $category';
+  }
 
   UserPost copyWith({
     String? id,
@@ -31,6 +51,8 @@ class UserPost {
     String? category,
     String? imageUrl,
     bool? isArchived,
+    String? restaurantLocation,
+    String? dateAndCategory,
   }) {
     return UserPost(
       id: id ?? this.id,
@@ -41,6 +63,8 @@ class UserPost {
       category: category ?? this.category,
       imageUrl: imageUrl ?? this.imageUrl,
       isArchived: isArchived ?? this.isArchived,
+      restaurantLocation: restaurantLocation ?? _customRestaurantLocation,
+      dateAndCategory: dateAndCategory ?? _customDateAndCategory,
     );
   }
 
@@ -78,5 +102,26 @@ class UserPost {
       imageUrl: 'assets/images/kebabs.png',
       isArchived: true,
     ),
+    UserPost(
+      id: 'post_archived_2',
+      title: 'Zafrani Mutton Biryani',
+      restaurant: 'Shadab Biryani',
+      location: 'Old City',
+      date: 'Archived 15 Oct 2026',
+      category: 'Archived',
+      imageUrl: 'assets/images/biryani.png',
+      isArchived: true,
+    ),
+    UserPost(
+      id: 'post_archived_3',
+      title: 'Old City Kebabs',
+      restaurant: 'Bawarchi',
+      location: 'Nampally',
+      date: 'Archived 10 Oct 2026',
+      category: 'Archived',
+      imageUrl: 'assets/images/kebabs.png',
+      isArchived: true,
+    ),
   ];
 }
+

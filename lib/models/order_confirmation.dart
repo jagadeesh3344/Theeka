@@ -93,6 +93,21 @@ class OrderConfirmation {
     this.reviewSubmitted = false,
   });
 
+  String get statusDescription {
+    switch (trackingStatus) {
+      case OrderTrackingStatus.orderConfirmed:
+        return 'Order confirmed';
+      case OrderTrackingStatus.preparingFood:
+        return 'Preparing food';
+      case OrderTrackingStatus.riderAssigned:
+        return 'Rider assigned';
+      case OrderTrackingStatus.outForDelivery:
+        return 'Out for delivery';
+      case OrderTrackingStatus.delivered:
+        return 'Delivered';
+    }
+  }
+
   String get deliveredTimestampText {
     final dDate = (deliveredDate ?? date).toUpperCase();
     final dTime = deliveredTime ?? arrivalAroundTime;
@@ -347,4 +362,13 @@ class OrderConfirmation {
       reviewSubmitted: reviewSubmitted,
     );
   }
+
+  static OrderConfirmation get sampleShadabOrder => OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 649.0,
+        cartQuantities: const {
+          'chicken_dum_biryani': 1,
+          'mutton_biryani': 1,
+        },
+      );
 }
