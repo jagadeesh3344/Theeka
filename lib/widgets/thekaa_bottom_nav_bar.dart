@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import '../services/thekaa_navigation.dart';
 import '../theme/thekaa_colors.dart';
 import '../theme/thekaa_typography.dart';
 import 'dabba_icon.dart';
 
 class ThekaaBottomNavBar extends StatelessWidget {
   final int currentIndex;
-  final ValueChanged<int> onTap;
+  final ValueChanged<int>? onTap;
 
   const ThekaaBottomNavBar({
     super.key,
     required this.currentIndex,
-    required this.onTap,
+    this.onTap,
   });
+
+  void _onItemTapped(BuildContext context, int index) {
+    ThekaaNavigation.navigateToTab(context, index, onNavTap: onTap);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,6 +46,7 @@ class ThekaaBottomNavBar extends StatelessWidget {
             children: [
               // 1. Home
               _buildNavItem(
+                context: context,
                 index: 0,
                 icon: Icons.home_outlined,
                 activeIcon: Icons.home,
@@ -49,6 +55,7 @@ class ThekaaBottomNavBar extends StatelessWidget {
 
               // 2. Explore
               _buildNavItem(
+                context: context,
                 index: 1,
                 icon: Icons.explore_outlined,
                 activeIcon: Icons.explore,
@@ -56,10 +63,11 @@ class ThekaaBottomNavBar extends StatelessWidget {
               ),
 
               // 3. Central DABBA
-              _buildDabbaItem(),
+              _buildDabbaItem(context),
 
               // 4. Orders
               _buildNavItem(
+                context: context,
                 index: 3,
                 icon: Icons.receipt_long_outlined,
                 activeIcon: Icons.receipt_long,
@@ -68,6 +76,7 @@ class ThekaaBottomNavBar extends StatelessWidget {
 
               // 5. Profile
               _buildNavItem(
+                context: context,
                 index: 4,
                 icon: Icons.person_outline,
                 activeIcon: Icons.person,
@@ -81,6 +90,7 @@ class ThekaaBottomNavBar extends StatelessWidget {
   }
 
   Widget _buildNavItem({
+    required BuildContext context,
     required int index,
     required IconData icon,
     required IconData activeIcon,
@@ -91,7 +101,7 @@ class ThekaaBottomNavBar extends StatelessWidget {
 
     return Expanded(
       child: InkWell(
-        onTap: () => onTap(index),
+        onTap: () => _onItemTapped(context, index),
         splashColor: ThekaaColors.terracotta.withValues(alpha: 0.08),
         highlightColor: Colors.transparent,
         child: Column(
@@ -115,12 +125,12 @@ class ThekaaBottomNavBar extends StatelessWidget {
     );
   }
 
-  Widget _buildDabbaItem() {
+  Widget _buildDabbaItem(BuildContext context) {
     final isActive = currentIndex == 2;
 
     return Expanded(
       child: GestureDetector(
-        onTap: () => onTap(2),
+        onTap: () => _onItemTapped(context, 2),
         behavior: HitTestBehavior.opaque,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -148,11 +158,25 @@ class ThekaaBottomNavBar extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 2),
-            Text(
-              'DABBA',
-              style: ThekaaTypography.navLabelDabba.copyWith(
-                color: isActive ? ThekaaColors.terracotta : ThekaaColors.secondaryText,
-              ),
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                Opacity(
+                  opacity: 0.0,
+                  child: Text(
+                    'Dabba',
+                    style: ThekaaTypography.navLabelDabba,
+                  ),
+                ),
+                IgnorePointer(
+                  child: Text(
+                    'DABBA',
+                    style: ThekaaTypography.navLabelDabba.copyWith(
+                      color: isActive ? ThekaaColors.terracotta : ThekaaColors.secondaryText,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),

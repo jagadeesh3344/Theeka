@@ -25,6 +25,12 @@ class OrderRepository extends ChangeNotifier {
 
   String _normalizeId(String orderId) => orderId.trim().toLowerCase();
 
+  void _safeNotifyListeners() {
+    scheduleMicrotask(() {
+      notifyListeners();
+    });
+  }
+
   /// Starts or resumes the order progression lifecycle for [order].
   /// Timers belong to the order, NOT individual screens, and continue across navigation.
   /// Never resets an existing order to an earlier stage.
@@ -46,12 +52,12 @@ class OrderRepository extends ChangeNotifier {
           assignedRider: order.assignedRider ?? current.assignedRider,
         );
         _orders[index] = current;
-        notifyListeners();
+        _safeNotifyListeners();
       }
     } else {
       current = order;
       _orders.insert(0, current);
-      notifyListeners();
+      _safeNotifyListeners();
     }
 
     if (stepDuration != null) {

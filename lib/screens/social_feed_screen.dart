@@ -505,7 +505,7 @@ class _SocialFeedScreenState extends State<SocialFeedScreen> {
       bottomNavigationBar: widget.showBottomNav
           ? ThekaaBottomNavBar(
               currentIndex: 2, // DABBA active
-              onTap: widget.onNavTap ?? (_) {},
+              onTap: widget.onNavTap,
             )
           : null,
       body: SafeArea(

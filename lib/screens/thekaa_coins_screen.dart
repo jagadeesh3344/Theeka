@@ -123,7 +123,7 @@ class ThekaaCoinsScreen extends StatelessWidget {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 4,
-        onTap: onNavTap ?? (_) {},
+        onTap: onNavTap,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

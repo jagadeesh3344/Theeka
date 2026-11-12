@@ -54,11 +54,11 @@ import 'package:thekaa/screens/coin_history_screen.dart';
 import 'package:thekaa/screens/put_coins_to_use_screen.dart';
 import 'package:thekaa/screens/taste_for_discovery_screen.dart';
 import 'package:thekaa/screens/story_appreciated_screen.dart';
-import 'package:thekaa/models/coins_models.dart';
 import 'package:thekaa/screens/completed_order_details_screen.dart';
 import 'package:thekaa/screens/orders_screen.dart';
 import 'package:thekaa/services/order_repository.dart';
 import 'package:thekaa/services/profile_repository.dart';
+import 'package:thekaa/screens/main_scaffold.dart';
 
 void main() {
   group('THEKAA Home Screen & Components Test Suite', () {
@@ -1621,7 +1621,6 @@ void main() {
 
     testWidgets('Interactive callbacks work and View order details is not present on OrderTrackingScreen', (tester) async {
       bool backed = false;
-      bool riderDetailsViewed = false;
       int? tappedIndex;
 
       final order = OrderConfirmation.fromCheckout(
@@ -1635,7 +1634,6 @@ void main() {
             order: order,
             enableSimulation: false,
             onBack: () => backed = true,
-            onViewRiderDetails: () => riderDetailsViewed = true,
             onNavTap: (i) => tappedIndex = i,
           ),
         ),
@@ -5161,6 +5159,701 @@ void main() {
       expect(find.text('View rider details'), findsOneWidget);
       final repoOrder = OrderRepository.instance.getOrderById(assignedOrder.orderId);
       expect(repoOrder?.trackingStatus, OrderTrackingStatus.riderAssigned);
+    });
+  });
+
+  group('THEKAA Global Bottom Navigation Test Suite', () {
+    testWidgets('Test 1: Home -> Orders and Home -> Profile tab switching', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Starts on Home
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Tap Orders tab (index 3)
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.text('Your Orders'), findsOneWidget);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Tap Profile tab (index 4)
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.text('My THEKAA'), findsOneWidget);
+      expect(find.byType(ProfileScreen), findsOneWidget);
+
+      // Tap Home tab (index 0)
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(HomeScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 2: Restaurant Details -> Home, Dabba, Profile', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Open Restaurant Details from Home
+      await tester.tap(find.text('Shadab Biryani').first);
+      await tester.pumpAndSettle();
+
+      // Tap "View menu & order" to open RestaurantDetailsScreen if on Explore, or we can push it
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantDetailsScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantDetailsScreen), findsOneWidget);
+
+      // Tap Home -> navigates to Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantDetailsScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Open RestaurantDetailsScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantDetailsScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantDetailsScreen), findsOneWidget);
+
+      // Tap Dabba -> navigates to Dabba
+      await tester.tap(find.text('Dabba'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantDetailsScreen), findsNothing);
+      expect(find.byType(SocialFeedScreen), findsOneWidget);
+
+      // Open RestaurantDetailsScreen again
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantDetailsScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Profile -> navigates to Profile
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantDetailsScreen), findsNothing);
+      expect(find.byType(ProfileScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 3: Menu -> Orders and Menu -> Explore', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantMenuScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantMenuScreen), findsOneWidget);
+
+      // Tap Orders -> navigates to Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantMenuScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Open Menu again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantMenuScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Explore -> navigates to Explore
+      await tester.tap(find.text('Explore'));
+      await tester.pumpAndSettle();
+      expect(find.byType(RestaurantMenuScreen), findsNothing);
+      expect(find.byType(ExploreScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 4: Cart -> Home, Orders, Profile', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push CartScreen
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => CartScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialQuantities: const {'chicken_dum_biryani': 1},
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(CartScreen), findsOneWidget);
+
+      // Tap Home -> navigates to Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(CartScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Push CartScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => CartScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialQuantities: const {'chicken_dum_biryani': 1},
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Orders -> navigates to Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(CartScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Push CartScreen again
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => CartScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialQuantities: const {'chicken_dum_biryani': 1},
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Profile -> navigates to Profile
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(CartScreen), findsNothing);
+      expect(find.byType(ProfileScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 5: Checkout (Review Order) -> Home, Dabba, Orders', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push ReviewOrderScreen
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => ReviewOrderScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialCartQuantities: const {'chicken_dum_biryani': 1},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(ReviewOrderScreen), findsOneWidget);
+
+      // Tap Home -> navigates to Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReviewOrderScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Push ReviewOrderScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => ReviewOrderScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialCartQuantities: const {'chicken_dum_biryani': 1},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Dabba -> navigates to Dabba
+      await tester.tap(find.text('Dabba'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReviewOrderScreen), findsNothing);
+      expect(find.byType(SocialFeedScreen), findsOneWidget);
+
+      // Push ReviewOrderScreen again
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => ReviewOrderScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialCartQuantities: const {'chicken_dum_biryani': 1},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Orders -> navigates to Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ReviewOrderScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 6: Order tracking ("A little dum, a little time") -> Home, Dabba, Orders, Profile', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+      OrderRepository.instance.addOrUpdateOrder(order);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push OrderTrackingScreen
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => OrderTrackingScreen(
+            order: order,
+            enableSimulation: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('A little dum, a little time'), findsOneWidget);
+
+      // Tap Home -> navigates to Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderTrackingScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Push OrderTrackingScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => OrderTrackingScreen(
+            order: order,
+            enableSimulation: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Dabba -> navigates to Dabba
+      await tester.tap(find.text('Dabba'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderTrackingScreen), findsNothing);
+      expect(find.byType(SocialFeedScreen), findsOneWidget);
+
+      // Push OrderTrackingScreen again
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => OrderTrackingScreen(
+            order: order,
+            enableSimulation: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Orders -> navigates to main Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderTrackingScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Push OrderTrackingScreen again
+      final scaffoldContext4 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext4).push(
+        MaterialPageRoute(
+          builder: (_) => OrderTrackingScreen(
+            order: order,
+            enableSimulation: false,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Profile -> navigates to Profile
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(OrderTrackingScreen), findsNothing);
+      expect(find.byType(ProfileScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 7: Khaana aa gaya ("DeliveredOrderScreen") -> Home, Dabba, Orders, Profile', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final deliveredOrder = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      ).copyWith(trackingStatus: OrderTrackingStatus.delivered);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push DeliveredOrderScreen
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => DeliveredOrderScreen(order: deliveredOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Khaana aa gaya!'), findsOneWidget);
+
+      // Tap Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DeliveredOrderScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Push DeliveredOrderScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => DeliveredOrderScreen(order: deliveredOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Dabba
+      await tester.tap(find.text('Dabba'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DeliveredOrderScreen), findsNothing);
+      expect(find.byType(SocialFeedScreen), findsOneWidget);
+
+      // Push DeliveredOrderScreen again
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => DeliveredOrderScreen(order: deliveredOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DeliveredOrderScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Push DeliveredOrderScreen again
+      final scaffoldContext4 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext4).push(
+        MaterialPageRoute(
+          builder: (_) => DeliveredOrderScreen(order: deliveredOrder),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Profile
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(DeliveredOrderScreen), findsNothing);
+      expect(find.byType(ProfileScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 8: Tell your food story -> Home, Explore, Dabba, Orders, Profile', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+      final eligibleOrder = EligibleOrder.fromOrderConfirmation(order);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push TellFoodStoryScreen
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => TellFoodStoryScreen(
+            eligibleOrders: [eligibleOrder],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Tell your food story'), findsOneWidget);
+
+      // Tap Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TellFoodStoryScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Push TellFoodStoryScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => TellFoodStoryScreen(
+            eligibleOrders: [eligibleOrder],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Explore
+      await tester.tap(find.text('Explore'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TellFoodStoryScreen), findsNothing);
+      expect(find.byType(ExploreScreen), findsOneWidget);
+
+      // Push TellFoodStoryScreen again
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => TellFoodStoryScreen(
+            eligibleOrders: [eligibleOrder],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Dabba
+      await tester.tap(find.text('Dabba'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TellFoodStoryScreen), findsNothing);
+      expect(find.byType(SocialFeedScreen), findsOneWidget);
+
+      // Push TellFoodStoryScreen again
+      final scaffoldContext4 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext4).push(
+        MaterialPageRoute(
+          builder: (_) => TellFoodStoryScreen(
+            eligibleOrders: [eligibleOrder],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TellFoodStoryScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Push TellFoodStoryScreen again
+      final scaffoldContext5 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext5).push(
+        MaterialPageRoute(
+          builder: (_) => TellFoodStoryScreen(
+            eligibleOrders: [eligibleOrder],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Profile
+      await tester.tap(find.text('Profile'));
+      await tester.pumpAndSettle();
+      expect(find.byType(TellFoodStoryScreen), findsNothing);
+      expect(find.byType(ProfileScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 9: Profile sub-pages (Coins, Edit Details, Saved Addresses) -> Home, Explore, Dabba, Orders', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push ThekaaCoinsScreen
+      final scaffoldContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext).push(
+        MaterialPageRoute(
+          builder: (_) => const ThekaaCoinsScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('THEKAA Coins'), findsOneWidget);
+
+      // Tap Orders -> navigates to Orders
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ThekaaCoinsScreen), findsNothing);
+      expect(find.byType(OrdersScreen), findsOneWidget);
+
+      // Push ThekaaCoinsScreen again
+      final scaffoldContext2 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext2).push(
+        MaterialPageRoute(
+          builder: (_) => const ThekaaCoinsScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Explore -> navigates to Explore
+      await tester.tap(find.text('Explore'));
+      await tester.pumpAndSettle();
+      expect(find.byType(ThekaaCoinsScreen), findsNothing);
+      expect(find.byType(ExploreScreen), findsOneWidget);
+
+      // Push EditProfileScreen
+      final scaffoldContext3 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext3).push(
+        MaterialPageRoute(
+          builder: (_) => EditProfileScreen(
+            profile: ProfileRepository.instance.profile,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Home -> navigates to Home
+      await tester.tap(find.text('Home'));
+      await tester.pumpAndSettle();
+      expect(find.byType(EditProfileScreen), findsNothing);
+      expect(find.byType(HomeScreen), findsOneWidget);
+
+      // Push SavedAddressesScreen
+      final scaffoldContext4 = tester.element(find.byType(MainScaffold));
+      Navigator.of(scaffoldContext4).push(
+        MaterialPageRoute(
+          builder: (_) => const SavedAddressesScreen(),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // Tap Dabba -> navigates to Dabba
+      await tester.tap(find.text('Dabba'));
+      await tester.pumpAndSettle();
+      expect(find.byType(SavedAddressesScreen), findsNothing);
+      expect(find.byType(SocialFeedScreen), findsOneWidget);
+    });
+
+    testWidgets('Test 10: Deep multi-screen nesting pops down to root MainScaffold preserving state', (tester) async {
+      tester.view.physicalSize = const Size(800, 1200);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.resetPhysicalSize);
+
+      final order = OrderConfirmation.fromCheckout(
+        restaurant: Restaurant.shadabBiryani,
+        payableAmount: 655.0,
+      );
+      OrderRepository.instance.addOrUpdateOrder(order);
+
+      await tester.pumpWidget(const ThekaaApp());
+      await tester.pumpAndSettle();
+
+      // Push 4 levels deep: Restaurant -> Menu -> Cart -> ReviewOrder
+      final rootContext = tester.element(find.byType(MainScaffold));
+      Navigator.of(rootContext).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantDetailsScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final lvl1Context = tester.element(find.byType(RestaurantDetailsScreen));
+      Navigator.of(lvl1Context).push(
+        MaterialPageRoute(
+          builder: (_) => RestaurantMenuScreen(
+            restaurant: Restaurant.shadabBiryani,
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final lvl2Context = tester.element(find.byType(RestaurantMenuScreen));
+      Navigator.of(lvl2Context).push(
+        MaterialPageRoute(
+          builder: (_) => CartScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialQuantities: const {'chicken_dum_biryani': 2},
+            onBack: () {},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      final lvl3Context = tester.element(find.byType(CartScreen));
+      Navigator.of(lvl3Context).push(
+        MaterialPageRoute(
+          builder: (_) => ReviewOrderScreen(
+            restaurant: Restaurant.shadabBiryani,
+            initialCartQuantities: const {'chicken_dum_biryani': 2},
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      // We are 4 levels deep on ReviewOrderScreen
+      expect(find.byType(ReviewOrderScreen), findsOneWidget);
+
+      // Tap Orders tab (index 3)
+      await tester.tap(find.text('Orders'));
+      await tester.pumpAndSettle();
+
+      // All pushed screens must be cleared in one go
+      expect(find.byType(ReviewOrderScreen), findsNothing);
+      expect(find.byType(CartScreen), findsNothing);
+      expect(find.byType(RestaurantMenuScreen), findsNothing);
+      expect(find.byType(RestaurantDetailsScreen), findsNothing);
+
+      // Now at root OrdersScreen
+      expect(find.byType(OrdersScreen), findsOneWidget);
+      expect(find.text('Your Orders'), findsOneWidget);
+
+      // Order state in repository is completely preserved
+      final repoOrder = OrderRepository.instance.getOrderById(order.orderId);
+      expect(repoOrder, isNotNull);
+      expect(repoOrder?.restaurantName, 'Shadab Biryani');
     });
   });
 }

@@ -151,7 +151,7 @@ class ProfileScreen extends StatelessWidget {
           bottomNavigationBar: showBottomNav
               ? ThekaaBottomNavBar(
                   currentIndex: 4,
-                  onTap: onBottomNavTap ?? (_) {},
+                  onTap: onBottomNavTap,
                 )
               : null,
           body: SafeArea(

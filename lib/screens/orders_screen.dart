@@ -52,13 +52,7 @@ class OrdersScreen extends StatelessWidget {
       bottomNavigationBar: showBottomNav
           ? ThekaaBottomNavBar(
               currentIndex: 3,
-              onTap: (index) {
-                if (onNavTap != null) {
-                  onNavTap!(index);
-                } else if (index == 0) {
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                }
-              },
+              onTap: onNavTap,
             )
           : null,
       body: ListenableBuilder(

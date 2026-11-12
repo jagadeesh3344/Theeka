@@ -171,13 +171,7 @@ class _OrderTrackingScreenState extends State<OrderTrackingScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 3, // Orders active
-        onTap: (index) {
-          if (widget.onNavTap != null) {
-            widget.onNavTap!(index);
-          } else if (index == 0) {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          }
-        },
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         bottom: false,

@@ -233,13 +233,7 @@ class _CartScreenState extends State<CartScreen> {
       bottomNavigationBar: widget.showBottomNav
           ? ThekaaBottomNavBar(
               currentIndex: 2, // DABBA is active on Cart Screen
-              onTap: (index) {
-                if (widget.onBottomNavTap != null) {
-                  widget.onBottomNavTap!(index);
-                } else if (index == 0) {
-                  widget.onBack();
-                }
-              },
+              onTap: widget.onBottomNavTap,
             )
           : null,
     );

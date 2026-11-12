@@ -36,7 +36,7 @@ class StoryPublishedScreen extends StatelessWidget {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 2, // DABBA active
-        onTap: onNavTap ?? (_) {},
+        onTap: onNavTap,
       ),
       body: SafeArea(
         child: Column(

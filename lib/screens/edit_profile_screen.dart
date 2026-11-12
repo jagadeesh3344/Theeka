@@ -4,7 +4,6 @@ import '../services/profile_repository.dart';
 import '../theme/thekaa_colors.dart';
 import '../theme/thekaa_typography.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
-import 'manage_posts_screen.dart';
 import 'my_food_journal_screen.dart';
 
 class EditProfileScreen extends StatefulWidget {
@@ -191,7 +190,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 4,
-        onTap: widget.onNavTap ?? (_) {},
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         child: Column(

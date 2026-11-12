@@ -125,7 +125,7 @@ class _MyFoodJournalScreenState extends State<MyFoodJournalScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 2, // DABBA active
-        onTap: widget.onNavTap ?? (_) {},
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

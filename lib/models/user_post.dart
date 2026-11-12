@@ -25,8 +25,9 @@ class UserPost {
         _customDateAndCategory = dateAndCategory;
 
   String get restaurantLocation {
-    if (_customRestaurantLocation != null && _customRestaurantLocation!.isNotEmpty) {
-      return _customRestaurantLocation!;
+    final custom = _customRestaurantLocation;
+    if (custom != null && custom.isNotEmpty) {
+      return custom;
     }
     if (restaurant.isEmpty) return location;
     if (location.isEmpty) return restaurant;
@@ -34,8 +35,9 @@ class UserPost {
   }
 
   String get dateAndCategory {
-    if (_customDateAndCategory != null && _customDateAndCategory!.isNotEmpty) {
-      return _customDateAndCategory!;
+    final custom = _customDateAndCategory;
+    if (custom != null && custom.isNotEmpty) {
+      return custom;
     }
     if (date.isEmpty) return category;
     if (category.isEmpty) return date;

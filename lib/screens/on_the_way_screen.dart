@@ -102,13 +102,7 @@ class OnTheWayScreen extends StatelessWidget {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 3,
-        onTap: (index) {
-          if (onNavTap != null) {
-            onNavTap!(index);
-          } else if (index == 0) {
-            Navigator.of(context).popUntil((route) => route.isFirst);
-          }
-        },
+        onTap: onNavTap,
       ),
       body: SafeArea(
         bottom: false,

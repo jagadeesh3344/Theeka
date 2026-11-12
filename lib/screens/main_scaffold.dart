@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/restaurant.dart';
+import '../services/thekaa_navigation.dart';
 import '../theme/thekaa_colors.dart';
 import '../theme/thekaa_typography.dart';
 import '../widgets/thekaa_bottom_nav_bar.dart';
@@ -11,16 +12,44 @@ import 'orders_screen.dart';
 import 'profile_screen.dart';
 
 class MainScaffold extends StatefulWidget {
-  const MainScaffold({super.key});
+  final int initialIndex;
+
+  const MainScaffold({
+    super.key,
+    this.initialIndex = 0,
+  });
 
   @override
-  State<MainScaffold> createState() => _MainScaffoldState();
+  State<MainScaffold> createState() => MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
-  int _currentIndex = 0;
+class MainScaffoldState extends State<MainScaffold> {
+  late int _currentIndex;
   String _selectedLocation = 'Gachibowli';
   Restaurant _selectedExploreRestaurant = Restaurant.shadabBiryani;
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    ThekaaNavigation.registerRootScaffold(this);
+  }
+
+  @override
+  void dispose() {
+    ThekaaNavigation.unregisterRootScaffold(this);
+    super.dispose();
+  }
+
+  void switchTab(int index) {
+    if (mounted && _currentIndex != index) {
+      setState(() {
+        _currentIndex = index;
+      });
+    }
+  }
+
+  int get currentIndex => _currentIndex;
 
   final List<String> _locations = [
     'Gachibowli',
@@ -145,10 +174,7 @@ class _MainScaffoldState extends State<MainScaffold> {
           restaurant: restaurant,
           onBack: () => Navigator.of(context).pop(),
           onBottomNavTap: (index) {
-            Navigator.of(context).pop();
-            setState(() {
-              _currentIndex = index;
-            });
+            ThekaaNavigation.navigateToTab(context, index);
           },
         ),
       ),

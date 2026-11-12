@@ -45,7 +45,7 @@ class _CoinHistoryScreenState extends State<CoinHistoryScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 4,
-        onTap: widget.onNavTap ?? (_) {},
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

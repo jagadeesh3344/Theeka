@@ -425,7 +425,7 @@ class _HelpSupportScreenState extends State<HelpSupportScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 4,
-        onTap: widget.onNavTap ?? (_) {},
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

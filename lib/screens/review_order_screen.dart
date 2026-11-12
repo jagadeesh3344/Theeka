@@ -4,6 +4,7 @@ import '../theme/thekaa_colors.dart';
 import '../widgets/review_order_header.dart';
 import '../widgets/review_order_items_card.dart';
 import '../widgets/review_bill_details_card.dart';
+import '../widgets/thekaa_bottom_nav_bar.dart';
 import 'address_selection_screen.dart';
 
 class ReviewOrderScreen extends StatefulWidget {
@@ -13,6 +14,8 @@ class ReviewOrderScreen extends StatefulWidget {
   final VoidCallback? onBack;
   final VoidCallback? onAddMore;
   final VoidCallback? onContinue;
+  final bool showBottomNav;
+  final ValueChanged<int>? onBottomNavTap;
 
   const ReviewOrderScreen({
     super.key,
@@ -22,6 +25,8 @@ class ReviewOrderScreen extends StatefulWidget {
     this.onBack,
     this.onAddMore,
     this.onContinue,
+    this.showBottomNav = true,
+    this.onBottomNavTap,
   });
 
   @override
@@ -210,6 +215,12 @@ class _ReviewOrderScreenState extends State<ReviewOrderScreen> {
           ],
         ),
       ),
+      bottomNavigationBar: widget.showBottomNav
+          ? ThekaaBottomNavBar(
+              currentIndex: 2, // DABBA active during checkout flow
+              onTap: widget.onBottomNavTap,
+            )
+          : null,
     );
   }
 }

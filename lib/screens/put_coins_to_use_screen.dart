@@ -118,7 +118,7 @@ class _PutCoinsToUseScreenState extends State<PutCoinsToUseScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 4,
-        onTap: widget.onNavTap ?? (_) {},
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         child: SingleChildScrollView(

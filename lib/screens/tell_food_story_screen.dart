@@ -595,7 +595,7 @@ class _TellFoodStoryScreenState extends State<TellFoodStoryScreen> {
       backgroundColor: ThekaaColors.mainBackground,
       bottomNavigationBar: ThekaaBottomNavBar(
         currentIndex: 2, // DABBA active
-        onTap: widget.onNavTap ?? (_) {},
+        onTap: widget.onNavTap,
       ),
       body: SafeArea(
         child: Column(
